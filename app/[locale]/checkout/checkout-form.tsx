@@ -715,7 +715,7 @@ const CheckoutForm = () => {
                     </p>
                     <p className="text-xs">
                       {" "}
-                      By placing your order, you agree to PYASTI's
+                      By placing your order, you agree to PYASTIs
                       <Link href="/page/privacy-policy">
                         privacy notice
                       </Link>{" "}
