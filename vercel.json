@@ -28,8 +28,13 @@
       "dest": "/api/$1"
     },
     {
+      "src": "/(en-US|fr)/(.*)",
+      "dest": "/$1/$2"
+    },
+    {
       "src": "/(.*)",
-      "dest": "/"
+      "dest": "/en/$1",
+      "continue": true
     }
   ],
   "env": {
