@@ -37,17 +37,17 @@ export default async function OrdersPage(props: {
   });
   return (
     <div className="max-w-7xl mx-auto p-4 bg-card shadow-md rounded-lg backdrop-blur-md">
-      <h1 className="h1-bold">Orders</h1>
+      <h1 className="h1-bold">Commandes</h1>
       <div className="overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>Id</TableHead>
               <TableHead>Date</TableHead>
-              <TableHead>Buyer</TableHead>
+              <TableHead>Client</TableHead>
               <TableHead>Total</TableHead>
-              <TableHead>Paid</TableHead>
-              <TableHead>Delivered</TableHead>
+              <TableHead>Payé</TableHead>
+              <TableHead>Livré</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>

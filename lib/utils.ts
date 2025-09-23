@@ -236,7 +236,7 @@ export const calcDeliveryDateAndPriceClient = ({
         ? 0
         : deliveryDate.shippingPrice;
 
-  const taxPrice = !shippingAddress ? undefined : round2(itemsPrice * 0.15);
+  const taxPrice = !shippingAddress ? undefined : round2(itemsPrice * 0);
   const totalPrice = round2(
     itemsPrice +
       (shippingPrice ? round2(shippingPrice) : 0) +

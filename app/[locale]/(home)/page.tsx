@@ -9,7 +9,7 @@ import {
   getProductsByTag,
 } from "@/lib/actions/product.actions";
 import { getSetting } from "@/lib/actions/setting.actions";
-import { getAllSubCategories } from "@/lib/actions/subCategory.actions";
+// import { getAllSubCategories } from "@/lib/actions/subCategory.actions";
 import { getTranslations } from "next-intl/server";
 
 export default async function HomePage() {
@@ -18,8 +18,8 @@ export default async function HomePage() {
   const todaysDeals = await getProductsByTag({ tag: "todays-deal" });
   const bestSellingProducts = await getProductsByTag({ tag: "best-seller" });
 
-  const subCategories = await getAllSubCategories({ query: "" });
-  const allSubCategories = subCategories.subCategories;
+  // const subCategories = await getAllSubCategories({ query: "" });
+  // const allSubCategories = subCategories.subCategories;
   const newArrivals = await getProductsForCard({ tag: "new-arrival" });
   const featureds = await getProductsForCard({ tag: "featured" });
   const bestSellers = await getProductsForCard({ tag: "best-seller" });

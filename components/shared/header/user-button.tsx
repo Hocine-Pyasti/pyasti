@@ -28,7 +28,9 @@ export default async function UserButton() {
                 {t("Header.Hello")},{" "}
                 {session ? session.user.name : t("Header.sign in")}
               </span>
-              <span className="font-bold">{t("Header.Account & Orders")}</span>
+              <span className="font-bold bg-primary px-1 rounded text-center">
+                {session ? session.user.role : ""}{" "}
+              </span>
             </div>
             <ChevronDownIcon />
           </div>

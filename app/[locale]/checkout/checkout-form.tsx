@@ -39,6 +39,7 @@ import Link from "next/link";
 import useCartStore from "@/hooks/use-cart-store";
 import useSettingStore from "@/hooks/use-setting-store";
 import ProductPrice from "@/components/shared/product/product-price";
+import { useTranslations } from "next-intl";
 
 const shippingAddressDefaultValues = {
   fullName: "",
@@ -51,6 +52,7 @@ const shippingAddressDefaultValues = {
 };
 
 const CheckoutForm = () => {
+  const t = useTranslations();
   const { toast } = useToast();
   const router = useRouter();
   const { setting, initialize } = useSettingStore();
@@ -85,12 +87,20 @@ const CheckoutForm = () => {
   const [isDeliveryDateSelected, setIsDeliveryDateSelected] =
     useState<boolean>(false);
 
-  // Initialize setting store
+  // Initialize setting store and set default delivery date
   useEffect(() => {
     if (!setting) {
       initialize();
+    } else if (deliveryDateIndex === undefined && setting.defaultDeliveryDate) {
+      const defaultIndex = setting.availableDeliveryDates.findIndex(
+        (date) => date.name === setting.defaultDeliveryDate
+      );
+      if (defaultIndex !== -1) {
+        setDeliveryDateIndex(defaultIndex);
+        setIsDeliveryDateSelected(true);
+      }
     }
-  }, [setting, initialize]);
+  }, [setting, initialize, deliveryDateIndex, setDeliveryDateIndex]);
 
   useEffect(() => {
     if (!isMounted || !shippingAddress) return;
@@ -105,7 +115,7 @@ const CheckoutForm = () => {
 
   // Add null check for setting
   if (!setting) {
-    return <div>Loading...</div>;
+    return <div>{t("Loading.Loading")}</div>;
   }
 
   const {
@@ -115,17 +125,27 @@ const CheckoutForm = () => {
   } = setting;
 
   const finalPaymentMethod = paymentMethod || defaultPaymentMethod;
+
   const onSubmitShippingAddress: SubmitHandler<ShippingAddress> = (values) => {
     setShippingAddress(values);
     setIsAddressSelected(true);
   };
 
   const handlePlaceOrder = async () => {
+    // Ensure deliveryDateIndex is set before placing order
+    if (deliveryDateIndex === undefined || deliveryDateIndex === null) {
+      toast({
+        description: t("Order.Please select a delivery date"),
+        variant: "destructive",
+      });
+      return;
+    }
+
     const res = await createOrder({
       items,
       shippingAddress,
       expectedDeliveryDate: calculateFutureDate(
-        availableDeliveryDates[deliveryDateIndex!].daysToDeliver
+        availableDeliveryDates[deliveryDateIndex].daysToDeliver
       ),
       deliveryDateIndex,
       paymentMethod: finalPaymentMethod,
@@ -150,19 +170,48 @@ const CheckoutForm = () => {
         clearCart();
       } else {
         toast({
-          description: "Order placed, but no order ID returned.",
+          description: t("Order.Order placed, but no order ID returned"),
           variant: "destructive",
         });
       }
     }
   };
+
   const handleSelectPaymentMethod = () => {
     setIsAddressSelected(true);
     setIsPaymentMethodSelected(true);
+    setIsDeliveryDateSelected(!!deliveryDateIndex); // Maintain delivery date selection
   };
+
   const handleSelectShippingAddress = () => {
     shippingAddressForm.handleSubmit(onSubmitShippingAddress)();
   };
+
+  // Helper function to get delivery date info safely
+  const getDeliveryDateInfo = (index: number | undefined) => {
+    if (index === undefined || !availableDeliveryDates[index]) {
+      return {
+        date: "",
+        shippingCost: 0,
+        name: "",
+        isValid: false,
+      };
+    }
+
+    const deliveryDate = availableDeliveryDates[index];
+    const deliveryDateObj = calculateFutureDate(deliveryDate.daysToDeliver);
+    return {
+      date: formatDateTime(deliveryDateObj).dateOnly,
+      shippingCost:
+        deliveryDate.freeShippingMinPrice > 0 &&
+        itemsPrice >= deliveryDate.freeShippingMinPrice
+          ? 0
+          : deliveryDate.shippingPrice,
+      name: deliveryDate.name,
+      isValid: true,
+    };
+  };
+
   const CheckoutSummary = () => (
     <Card>
       <CardContent className="p-4">
@@ -172,65 +221,67 @@ const CheckoutForm = () => {
               className="rounded-full w-full"
               onClick={handleSelectShippingAddress}
             >
-              Ship to this address
+              {t("Order.Shipping Address")}
             </Button>
             <p className="text-xs text-center py-2">
-              Choose a shipping address and payment method in order to calculate
-              shipping, handling, and tax.
+              {t("Order.Checkout Note1")}
             </p>
           </div>
         )}
         {isAddressSelected && !isPaymentMethodSelected && (
-          <div className=" mb-4">
+          <div className="mb-4">
             <Button
               className="rounded-full w-full"
               onClick={handleSelectPaymentMethod}
             >
-              Use this payment method
+              {t("Order.Payment Method")}
             </Button>
-
             <p className="text-xs text-center py-2">
-              Choose a payment method to continue checking out. You'll still
-              have a chance to review and edit your order before it's final.
+              {t("Order.Checkout Note2")}
             </p>
           </div>
         )}
         {isPaymentMethodSelected && isAddressSelected && (
           <div>
-            <Button onClick={handlePlaceOrder} className="rounded-full w-full">
-              Place Your Order
+            <Button
+              onClick={handlePlaceOrder}
+              className="rounded-full w-full"
+              disabled={deliveryDateIndex === undefined}
+            >
+              {t("Order.Place Order")}
             </Button>
             <p className="text-xs text-center py-2">
-              By placing your order, you agree to PYASTI's{" "}
-              <Link href="/page/privacy-policy">privacy notice</Link> and
-              <Link href="/page/conditions-of-use"> conditions of use</Link>.
+              {t("Order.Checkout Note3")}
+              <Link href="/page/privacy-policy">
+                {t("Auth.Privacy Policy")}
+              </Link>
             </p>
           </div>
         )}
 
         <div>
-          <div className="text-lg font-bold">Order Summary</div>
+          <div className="text-lg font-bold">{t("Order.Order Summary")} </div>
           <div className="space-y-2">
             <div className="flex justify-between">
-              <span>Items:</span>
+              <span>{t("Order.Items")} </span>
               <span>
                 <ProductPrice price={itemsPrice} plain />
               </span>
             </div>
             <div className="flex justify-between">
-              <span>Shipping & Handling:</span>
+              <span>{t("Order.Shipping & Handling")} </span>
               <span>
                 {shippingPrice === undefined ? (
                   "--"
                 ) : shippingPrice === 0 ? (
-                  "FREE"
+                  t("Order.FREE Shipping")
                 ) : (
                   <ProductPrice price={shippingPrice} plain />
                 )}
               </span>
             </div>
             <div className="flex justify-between">
-              <span> Tax:</span>
+              <span>{t("Order.Tax")}</span>
               <span>
                 {taxPrice === undefined ? (
                   "--"
@@ -239,8 +290,8 @@ const CheckoutForm = () => {
                 )}
               </span>
             </div>
-            <div className="flex justify-between  pt-4 font-bold text-lg">
-              <span> Order Total:</span>
+            <div className="flex justify-between pt-4 font-bold text-lg">
+              <span>{t("Order.Order Total")} </span>
               <span>
                 <ProductPrice price={totalPrice} plain />
               </span>
@@ -258,12 +309,12 @@ const CheckoutForm = () => {
           {/* shipping address */}
           <div>
             {isAddressSelected && shippingAddress ? (
-              <div className="grid grid-cols-1 md:grid-cols-12    my-3  pb-3">
-                <div className="col-span-5 flex text-lg font-bold ">
+              <div className="grid grid-cols-1 md:grid-cols-12 my-3 pb-3">
+                <div className="col-span-5 flex text-lg font-bold">
                   <span className="w-8">1 </span>
-                  <span>Shipping address</span>
+                  <span>{t("Order.Shipping Address")} </span>
                 </div>
-                <div className="col-span-5 ">
+                <div className="col-span-5">
                   <p>
                     {shippingAddress.fullName} <br />
                     {shippingAddress.street} <br />
@@ -275,11 +326,11 @@ const CheckoutForm = () => {
                     variant={"outline"}
                     onClick={() => {
                       setIsAddressSelected(false);
-                      setIsPaymentMethodSelected(true);
-                      setIsDeliveryDateSelected(true);
+                      setIsPaymentMethodSelected(false);
+                      setIsDeliveryDateSelected(false);
                     }}
                   >
-                    Change
+                    {t("All.Change")}
                   </Button>
                 </div>
               </div>
@@ -287,7 +338,7 @@ const CheckoutForm = () => {
               <>
                 <div className="flex text-primary text-lg font-bold my-2">
                   <span className="w-8">1 </span>
-                  <span>Enter shipping address</span>
+                  <span>{t("Order.Enter shipping address")} </span>
                 </div>
                 <Form {...shippingAddressForm}>
                   <form
@@ -300,7 +351,7 @@ const CheckoutForm = () => {
                     <Card className="md:ml-8 my-4">
                       <CardContent className="p-4 space-y-2">
                         <div className="text-lg font-bold mb-2">
-                          Your address
+                          {t("Order.Your addresses")}
                         </div>
 
                         <div className="flex flex-col gap-5 md:flex-row">
@@ -309,10 +360,10 @@ const CheckoutForm = () => {
                             name="fullName"
                             render={({ field }) => (
                               <FormItem className="w-full">
-                                <FormLabel>Full Name</FormLabel>
+                                <FormLabel>{t("Auth.Full Name")}</FormLabel>
                                 <FormControl>
                                   <Input
-                                    placeholder="Enter full name"
+                                    placeholder={t("Auth.Full Name")}
                                     {...field}
                                   />
                                 </FormControl>
@@ -327,10 +378,10 @@ const CheckoutForm = () => {
                             name="street"
                             render={({ field }) => (
                               <FormItem className="w-full">
-                                <FormLabel>Address</FormLabel>
+                                <FormLabel>{t("Auth.Address")}</FormLabel>
                                 <FormControl>
                                   <Input
-                                    placeholder="Enter address"
+                                    placeholder={t("Auth.Address")}
                                     {...field}
                                   />
                                 </FormControl>
@@ -345,9 +396,12 @@ const CheckoutForm = () => {
                             name="city"
                             render={({ field }) => (
                               <FormItem className="w-full">
-                                <FormLabel>City</FormLabel>
+                                <FormLabel>{t("Auth.City")} </FormLabel>
                                 <FormControl>
-                                  <Input placeholder="Enter city" {...field} />
+                                  <Input
+                                    placeholder={t("Auth.City")}
+                                    {...field}
+                                  />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -358,10 +412,10 @@ const CheckoutForm = () => {
                             name="province"
                             render={({ field }) => (
                               <FormItem className="w-full">
-                                <FormLabel>Province</FormLabel>
+                                <FormLabel>{t("Auth.Province")}</FormLabel>
                                 <FormControl>
                                   <Input
-                                    placeholder="Enter province"
+                                    placeholder={t("Auth.Province")}
                                     {...field}
                                   />
                                 </FormControl>
@@ -374,10 +428,10 @@ const CheckoutForm = () => {
                             name="country"
                             render={({ field }) => (
                               <FormItem className="w-full">
-                                <FormLabel>Country</FormLabel>
+                                <FormLabel>{t("Auth.Country")}</FormLabel>
                                 <FormControl>
                                   <Input
-                                    placeholder="Enter country"
+                                    placeholder={t("Auth.Country")}
                                     {...field}
                                   />
                                 </FormControl>
@@ -392,10 +446,10 @@ const CheckoutForm = () => {
                             name="postalCode"
                             render={({ field }) => (
                               <FormItem className="w-full">
-                                <FormLabel>Postal Code</FormLabel>
+                                <FormLabel>{t("Auth.Postal Code")}</FormLabel>
                                 <FormControl>
                                   <Input
-                                    placeholder="Enter postal code"
+                                    placeholder={t("Auth.Postal Code")}
                                     {...field}
                                   />
                                 </FormControl>
@@ -408,10 +462,10 @@ const CheckoutForm = () => {
                             name="phone"
                             render={({ field }) => (
                               <FormItem className="w-full">
-                                <FormLabel>Phone number</FormLabel>
+                                <FormLabel>{t("Auth.Phone Number")}</FormLabel>
                                 <FormControl>
                                   <Input
-                                    placeholder="Enter phone number"
+                                    placeholder={t("Auth.Phone Number")}
                                     {...field}
                                   />
                                 </FormControl>
@@ -421,12 +475,12 @@ const CheckoutForm = () => {
                           />
                         </div>
                       </CardContent>
-                      <CardFooter className="  p-4">
+                      <CardFooter className="p-4">
                         <Button
                           type="submit"
                           className="rounded-full font-bold"
                         >
-                          Ship to this address
+                          {t("Order.Shipping Address")}
                         </Button>
                       </CardFooter>
                     </Card>
@@ -435,15 +489,16 @@ const CheckoutForm = () => {
               </>
             )}
           </div>
+
           {/* payment method */}
           <div className="border-y">
             {isPaymentMethodSelected && paymentMethod ? (
-              <div className="grid  grid-cols-1 md:grid-cols-12  my-3 pb-3">
-                <div className="flex text-lg font-bold  col-span-5">
+              <div className="grid grid-cols-1 md:grid-cols-12 my-3 pb-3">
+                <div className="flex text-lg font-bold col-span-5">
                   <span className="w-8">2 </span>
-                  <span>Payment Method</span>
+                  <span>{t("Order.Payment Method")} </span>
                 </div>
-                <div className="col-span-5 ">
+                <div className="col-span-5">
                   <p>{paymentMethod}</p>
                 </div>
                 <div className="col-span-2">
@@ -451,10 +506,10 @@ const CheckoutForm = () => {
                     variant="outline"
                     onClick={() => {
                       setIsPaymentMethodSelected(false);
-                      if (paymentMethod) setIsDeliveryDateSelected(true);
+                      setIsDeliveryDateSelected(false);
                     }}
                   >
-                    Change
+                    {t("All.Change")}
                   </Button>
                 </div>
               </div>
@@ -462,7 +517,7 @@ const CheckoutForm = () => {
               <>
                 <div className="flex text-primary text-lg font-bold my-2">
                   <span className="w-8">2 </span>
-                  <span>Choose a payment method</span>
+                  <span>{t("Order.Choose a payment method")} </span>
                 </div>
                 <Card className="md:ml-8 my-4">
                   <CardContent className="p-4">
@@ -471,7 +526,7 @@ const CheckoutForm = () => {
                       onValueChange={(value) => setPaymentMethod(value)}
                     >
                       {availablePaymentMethods.map((pm) => (
-                        <div key={pm.name} className="flex items-center py-1 ">
+                        <div key={pm.name} className="flex items-center py-1">
                           <RadioGroupItem
                             value={pm.name}
                             id={`payment-${pm.name}`}
@@ -490,8 +545,9 @@ const CheckoutForm = () => {
                     <Button
                       onClick={handleSelectPaymentMethod}
                       className="rounded-full font-bold"
+                      disabled={!paymentMethod}
                     >
-                      Use this payment method
+                      {t("Order.Use this payment method")}
                     </Button>
                   </CardFooter>
                 </Card>
@@ -499,29 +555,23 @@ const CheckoutForm = () => {
             ) : (
               <div className="flex text-muted-foreground text-lg font-bold my-4 py-3">
                 <span className="w-8">2 </span>
-                <span>Choose a payment method</span>
+                <span>{t("Order.Choose a payment method")}</span>
               </div>
             )}
           </div>
+
           {/* items and delivery date */}
           <div>
-            {isDeliveryDateSelected && deliveryDateIndex != undefined ? (
-              <div className="grid  grid-cols-1 md:grid-cols-12  my-3 pb-3">
-                <div className="flex text-lg font-bold  col-span-5">
+            {isDeliveryDateSelected && deliveryDateIndex !== undefined ? (
+              <div className="grid grid-cols-1 md:grid-cols-12 my-3 pb-3">
+                <div className="flex text-lg font-bold col-span-5">
                   <span className="w-8">3 </span>
-                  <span>Items and shipping</span>
+                  <span>{t("Order.Items and shipping")}</span>
                 </div>
                 <div className="col-span-5">
                   <p>
-                    Delivery date:{" "}
-                    {
-                      formatDateTime(
-                        calculateFutureDate(
-                          availableDeliveryDates[deliveryDateIndex]
-                            .daysToDeliver
-                        )
-                      ).dateOnly
-                    }
+                    {t("Order.Delivery date")}:{" "}
+                    {getDeliveryDateInfo(deliveryDateIndex).date}
                   </p>
                   <ul>
                     {items.map((item, _index) => (
@@ -540,36 +590,36 @@ const CheckoutForm = () => {
                   <Button
                     variant={"outline"}
                     onClick={() => {
-                      setIsPaymentMethodSelected(true);
                       setIsDeliveryDateSelected(false);
                     }}
                   >
-                    Change
+                    {t("All.Change")}
                   </Button>
                 </div>
               </div>
             ) : isPaymentMethodSelected && isAddressSelected ? (
               <>
-                <div className="flex text-primary  text-lg font-bold my-2">
+                <div className="flex text-primary text-lg font-bold my-2">
                   <span className="w-8">3 </span>
-                  <span>Review items and shipping</span>
+                  <span>{t("Order.Review items and shipping")} </span>
                 </div>
                 <Card className="md:ml-8">
                   <CardContent className="p-4">
                     <p className="mb-2">
                       <span className="text-lg font-bold text-green-700">
-                        Arriving{" "}
-                        {
-                          formatDateTime(
-                            calculateFutureDate(
-                              availableDeliveryDates[deliveryDateIndex!]
-                                .daysToDeliver
-                            )
-                          ).dateOnly
-                        }
+                        {t("Order.Arriving")}{" "}
+                        {getDeliveryDateInfo(deliveryDateIndex).isValid
+                          ? getDeliveryDateInfo(deliveryDateIndex).date
+                          : t("Order.Please select a delivery option")}
                       </span>{" "}
-                      If you order in the next {timeUntilMidnight().hours} hours
-                      and {timeUntilMidnight().minutes} minutes.
+                      {getDeliveryDateInfo(deliveryDateIndex).isValid &&
+                        t("Order.If you order within the next")}{" "}
+                      {getDeliveryDateInfo(deliveryDateIndex).isValid &&
+                        timeUntilMidnight().hours}{" "}
+                      {t("Order.hours and")}{" "}
+                      {getDeliveryDateInfo(deliveryDateIndex).isValid &&
+                        timeUntilMidnight().minutes}{" "}
+                      {t("Order.minutes")}
                     </p>
                     <div className="grid md:grid-cols-2 gap-6">
                       <div>
@@ -592,13 +642,18 @@ const CheckoutForm = () => {
                                 {item.name} ({item.brand}, {item.partNumber})
                               </p>
                               <p className="text-sm">
-                                Subcategory: {item.subCategory?.name || "N/A"}
+                                {t("Product.SubCategory")}:{" "}
+                                {item.subCategory?.name || "N/A"}
                               </p>
                               {item.color && (
-                                <p className="text-sm">Color: {item.color}</p>
+                                <p className="text-sm">
+                                  {t("Product.Color")}: {item.color}
+                                </p>
                               )}
                               {item.size && (
-                                <p className="text-sm">Size: {item.size}</p>
+                                <p className="text-sm">
+                                  {t("Product.Size")}: {item.size}
+                                </p>
                               )}
                               <p className="font-bold">
                                 <ProductPrice price={item.price} plain />
@@ -613,7 +668,7 @@ const CheckoutForm = () => {
                               >
                                 <SelectTrigger className="w-24">
                                   <SelectValue>
-                                    Qty: {item.quantity}
+                                    {t("Product.Quantity")}: {item.quantity}
                                   </SelectValue>
                                 </SelectTrigger>
                                 <SelectContent position="popper">
@@ -625,7 +680,7 @@ const CheckoutForm = () => {
                                     </SelectItem>
                                   ))}
                                   <SelectItem key="delete" value="0">
-                                    Delete
+                                    {t("Cart.Delete")}
                                   </SelectItem>
                                 </SelectContent>
                               </Select>
@@ -634,55 +689,74 @@ const CheckoutForm = () => {
                         ))}
                       </div>
                       <div>
-                        <div className=" font-bold">
-                          <p className="mb-2"> Choose a shipping speed:</p>
+                        <div className="font-bold">
+                          <p className="mb-2">
+                            {t("Order.Choose a shipping speed")}
+                          </p>
 
                           <ul>
                             <RadioGroup
                               value={
-                                availableDeliveryDates[deliveryDateIndex!].name
+                                deliveryDateIndex !== undefined
+                                  ? availableDeliveryDates[deliveryDateIndex]
+                                      .name
+                                  : setting.defaultDeliveryDate || ""
                               }
-                              onValueChange={(value) =>
-                                setDeliveryDateIndex(
-                                  availableDeliveryDates.findIndex(
-                                    (address) => address.name === value
-                                  )!
-                                )
-                              }
+                              onValueChange={(value) => {
+                                const index = availableDeliveryDates.findIndex(
+                                  (date) => date.name === value
+                                );
+                                if (index !== -1) {
+                                  const deliveryInfo =
+                                    getDeliveryDateInfo(index);
+                                  setDeliveryDateIndex(
+                                    index,
+                                    deliveryInfo.shippingCost
+                                  );
+                                  setIsDeliveryDateSelected(true);
+                                }
+                              }}
                             >
-                              {availableDeliveryDates.map((dd) => (
-                                <div key={dd.name} className="flex">
-                                  <RadioGroupItem
-                                    value={dd.name}
-                                    id={`address-${dd.name}`}
-                                  />
-                                  <Label
-                                    className="pl-2 space-y-2 cursor-pointer"
-                                    htmlFor={`address-${dd.name}`}
+                              {availableDeliveryDates.map((dd) => {
+                                const deliveryInfo = getDeliveryDateInfo(
+                                  availableDeliveryDates.findIndex(
+                                    (date) => date.name === dd.name
+                                  )
+                                );
+                                return (
+                                  <div
+                                    key={dd.name}
+                                    className="flex items-center py-2"
                                   >
-                                    <div className="text-green-700 font-semibold">
-                                      {
-                                        formatDateTime(
-                                          calculateFutureDate(dd.daysToDeliver)
-                                        ).dateOnly
-                                      }
-                                    </div>
-                                    <div>
-                                      {(dd.freeShippingMinPrice > 0 &&
-                                      itemsPrice >= dd.freeShippingMinPrice
-                                        ? 0
-                                        : dd.shippingPrice) === 0 ? (
-                                        "FREE Shipping"
-                                      ) : (
-                                        <ProductPrice
-                                          price={dd.shippingPrice}
-                                          plain
-                                        />
-                                      )}
-                                    </div>
-                                  </Label>
-                                </div>
-                              ))}
+                                    <RadioGroupItem
+                                      value={dd.name}
+                                      id={`delivery-${dd.name}`}
+                                    />
+                                    <Label
+                                      className="pl-2 space-y-2 cursor-pointer"
+                                      htmlFor={`delivery-${dd.name}`}
+                                    >
+                                      <div className="text-green-700 font-semibold">
+                                        {dd.name} (
+                                        {deliveryInfo.shippingCost === 0
+                                          ? t("Order.FREE Shipping")
+                                          : t("Product.Price") +
+                                            ": " +
+                                            (
+                                              <ProductPrice
+                                                price={
+                                                  deliveryInfo.shippingCost
+                                                }
+                                                plain
+                                              />
+                                            )}
+                                        )
+                                      </div>
+                                      <div>{deliveryInfo.date}</div>
+                                    </Label>
+                                  </div>
+                                );
+                              })}
                             </RadioGroup>
                           </ul>
                         </div>
@@ -694,37 +768,35 @@ const CheckoutForm = () => {
             ) : (
               <div className="flex text-muted-foreground text-lg font-bold my-4 py-3">
                 <span className="w-8">3 </span>
-                <span>Items and shipping</span>
+                <span>{t("Order.Items and shipping")} </span>
               </div>
             )}
           </div>
+
           {isPaymentMethodSelected && isAddressSelected && (
             <div className="mt-6">
               <div className="block md:hidden">
                 <CheckoutSummary />
               </div>
 
-              <Card className="hidden md:block ">
+              <Card className="hidden md:block">
                 <CardContent className="p-4 flex flex-col md:flex-row justify-between items-center gap-3">
-                  <Button onClick={handlePlaceOrder} className="rounded-full">
-                    Place Your Order
+                  <Button
+                    onClick={handlePlaceOrder}
+                    className="rounded-full"
+                    disabled={deliveryDateIndex === undefined}
+                  >
+                    {t("Order.Place Order")}
                   </Button>
                   <div className="flex-1">
                     <p className="font-bold text-lg">
-                      Order Total: <ProductPrice price={totalPrice} plain />
+                      {t("Order.Order Total")} :{" "}
+                      <ProductPrice price={totalPrice} plain />
                     </p>
                     <p className="text-xs">
-                      {" "}
-                      By placing your order, you agree to PYASTIs
                       <Link href="/page/privacy-policy">
-                        privacy notice
-                      </Link>{" "}
-                      and
-                      <Link href="/page/conditions-of-use">
-                        {" "}
-                        conditions of use
+                        {t("Order.Checkout Note3")}
                       </Link>
-                      .
                     </p>
                   </div>
                 </CardContent>
@@ -740,4 +812,5 @@ const CheckoutForm = () => {
     </main>
   );
 };
+
 export default CheckoutForm;

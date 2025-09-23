@@ -2,8 +2,12 @@
 
 import bcrypt from "bcryptjs";
 import { auth, signIn, signOut } from "@/auth";
-import { IUserName, IUserSignIn, IUserSignUp } from "@/types";
-import { UserSignUpSchema, UserUpdateSchema } from "../validator";
+import { IUserProfile, IUserSignIn, IUserSignUp } from "@/types";
+import {
+  UserSignUpSchema,
+  UserUpdateSchema,
+  UserProfileSchema,
+} from "../validator";
 import { connectToDatabase } from "../db";
 import User, { IUser } from "../db/models/user.model";
 import { formatError } from "../utils";
@@ -110,13 +114,34 @@ export async function updateUser(user: z.infer<typeof UserUpdateSchema>) {
     return { success: false, message: formatError(error) };
   }
 }
-export async function updateUserName(user: IUserName) {
+
+export async function updateUserProfile(
+  user: z.infer<typeof UserProfileSchema>
+) {
   try {
     await connectToDatabase();
     const session = await auth();
     const currentUser = await User.findById(session?.user?.id);
     if (!currentUser) throw new Error("User not found");
+
     currentUser.name = user.name;
+    currentUser.phoneNumber = user.phoneNumber || currentUser.phoneNumber;
+    currentUser.address = user.address || currentUser.address;
+    if (currentUser.role === "Seller") {
+      currentUser.shopDetails = {
+        ...currentUser.shopDetails,
+        shopName:
+          user.shopDetails?.shopName || currentUser.shopDetails?.shopName,
+        shopPhone:
+          user.shopDetails?.shopPhone || currentUser.shopDetails?.shopPhone,
+        shopDescription:
+          user.shopDetails?.shopDescription ||
+          currentUser.shopDetails?.shopDescription,
+        shopAddress:
+          user.shopDetails?.shopAddress || currentUser.shopDetails?.shopAddress,
+      };
+    }
+
     const updatedUser = await currentUser.save();
     return {
       success: true,

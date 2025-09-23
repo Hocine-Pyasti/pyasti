@@ -409,7 +409,7 @@ We also provide helpful resources such as order tracking, product guides, and FA
         code: locale.code,
         name: locale.name,
       })),
-      defaultLanguage: "en-US",
+      defaultLanguage: "fr",
       availableCurrencies: [
         {
           name: "United States Dollar",

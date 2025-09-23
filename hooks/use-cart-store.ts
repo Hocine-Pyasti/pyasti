@@ -65,9 +65,7 @@ const useCartStore = create(
           (acc, item) => acc + item.price * item.quantity,
           0
         );
-        const taxPrice = shippingAddress
-          ? round2(itemsPrice * 0.15)
-          : undefined;
+        const taxPrice = shippingAddress ? round2(itemsPrice * 0) : undefined;
         const totalPrice = round2(itemsPrice + (taxPrice || 0));
 
         set({
@@ -111,9 +109,7 @@ const useCartStore = create(
           (acc, item) => acc + item.price * item.quantity,
           0
         );
-        const taxPrice = shippingAddress
-          ? round2(itemsPrice * 0.15)
-          : undefined;
+        const taxPrice = shippingAddress ? round2(itemsPrice * 0) : undefined;
         const totalPrice = round2(itemsPrice + (taxPrice || 0));
 
         set({
@@ -139,9 +135,7 @@ const useCartStore = create(
           (acc, item) => acc + item.price * item.quantity,
           0
         );
-        const taxPrice = shippingAddress
-          ? round2(itemsPrice * 0.15)
-          : undefined;
+        const taxPrice = shippingAddress ? round2(itemsPrice * 0) : undefined;
         const totalPrice = round2(itemsPrice + (taxPrice || 0));
 
         set({
@@ -161,9 +155,7 @@ const useCartStore = create(
           (acc, item) => acc + item.price * item.quantity,
           0
         );
-        const taxPrice = shippingAddress
-          ? round2(itemsPrice * 0.15)
-          : undefined;
+        const taxPrice = shippingAddress ? round2(itemsPrice * 0) : undefined;
         const totalPrice = round2(itemsPrice + (taxPrice || 0));
 
         set({
@@ -191,9 +183,7 @@ const useCartStore = create(
           (acc, item) => acc + item.price * item.quantity,
           0
         );
-        const taxPrice = shippingAddress
-          ? round2(itemsPrice * 0.15)
-          : undefined;
+        const taxPrice = shippingAddress ? round2(itemsPrice * 0) : undefined;
         const totalPrice = round2(itemsPrice + (taxPrice || 0));
 
         set({

@@ -52,6 +52,8 @@ export default function OverviewReport() {
     }
   }, [date]);
 
+  // console.log("🔍 [DEBUG] OverviewReport data:", data);
+
   if (!data)
     return (
       <div className="space-y-4">

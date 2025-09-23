@@ -41,7 +41,7 @@ export default function Footer() {
                 <Link href="/page/blog">{t("Footer.Blog")}</Link>
               </li>
               <li>
-                <Link href="/page/about-us">{t("Footer.About")}</Link>
+                {/* <Link href="/page/about-us">{t("Footer.About")}</Link> */}
               </li>
             </ul>
           </div>

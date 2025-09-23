@@ -75,7 +75,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           await connectToDatabase();
           await User.findByIdAndUpdate(user.id, {
             name: user.name || user.email!.split("@")[0],
-            role: "user",
+            role: "User",
           });
         }
         token.name = user.name || user.email!.split("@")[0];

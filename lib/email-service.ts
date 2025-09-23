@@ -120,16 +120,16 @@ export const sendVerificationCodeEmail = async ({
     "🔍 [DEBUG] Attempting to send verification code email to:",
     email
   );
-  console.log("🔍 [DEBUG] Verification code:", code);
-  console.log("🔍 [DEBUG] Gmail user exists:", !!process.env.GMAIL_USER);
-  console.log("🔍 [DEBUG] Sender email:", SENDER_EMAIL);
-  console.log("🔍 [DEBUG] Sender name:", SENDER_NAME);
+  // console.log("🔍 [DEBUG] Verification code:", code);
+  // console.log("🔍 [DEBUG] Gmail user exists:", !!process.env.GMAIL_USER);
+  // console.log("🔍 [DEBUG] Sender email:", SENDER_EMAIL);
+  // console.log("🔍 [DEBUG] Sender name:", SENDER_NAME);
 
   try {
     const html = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2 style="color: #333;">Verification Code</h2>
-        <p>Your verification code is: <strong style="font-size: 18px; color: #007bff;">${code}</strong></p>
+        <p>Votre code de vérification est: <strong style="font-size: 18px; color: #007bff;">${code}</strong></p>
         <p>If you didn't request this code, please ignore this email.</p>
       </div>
     `;
@@ -138,12 +138,12 @@ export const sendVerificationCodeEmail = async ({
 
     const result = await sendEmail({
       to: email,
-      subject: "Your verification code",
+      subject: "Votre code de vérification",
       html,
       text,
     });
 
-    console.log("✅ [DEBUG] Verification email sent successfully:", result);
+    // console.log("✅ [DEBUG] Verification email sent successfully:", result);
     return result;
   } catch (error) {
     console.error("❌ [DEBUG] Failed to send verification email:", error);
@@ -172,8 +172,8 @@ export const sendWelcomeEmail = async ({
   try {
     const html = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #333;">Welcome!</h2>
-        <p>Welcome, <strong>${name}</strong>! Your account has been successfully verified.</p>
+        <h2 style="color: #333;">Bienvenue!</h2>
+        <p>Bonjour <strong>${name}</strong>! votre compte a été vérifié avec succès.</p>
         <p>Thank you for joining our platform!</p>
       </div>
     `;
@@ -182,12 +182,12 @@ export const sendWelcomeEmail = async ({
 
     const result = await sendEmail({
       to: email,
-      subject: "Welcome to our platform!",
+      subject: "Welcome to PYASTI!",
       html,
       text,
     });
 
-    console.log("✅ [DEBUG] Welcome email sent successfully:", result);
+    // console.log("✅ [DEBUG] Welcome email sent successfully:", result);
     return result;
   } catch (error) {
     console.error("❌ [DEBUG] Failed to send welcome email:", error);
@@ -461,20 +461,20 @@ async function generateAskReviewHTML(order: {
 
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-      <h2 style="color: #333;">Review Your Order</h2>
-      <p>Thank you for your recent order! We hope you're enjoying your purchase.</p>
+      <h2 style="color: #333;">Vérifiez votre commande</h2>
+      <p>Merci pour votre commande ! Nous espérons que vous apprécierez votre achat.</p>
       
-      <h3>Order Items:</h3>
+      <h3>Articles commandés :</h3>
       <ul>
         ${items}
       </ul>
       
-      <p>Please take a moment to review your items and share your experience with us.</p>
+      <p>Veuillez prendre un moment pour examiner vos articles et partager votre expérience avec nous.</p>
       
       <div style="text-align: center; margin: 30px 0;">
         <a href="${process.env.NEXT_PUBLIC_SERVER_URL}/account/orders/${order._id}" 
            style="background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px;">
-          Review Your Order
+          Voir votre commande
         </a>
       </div>
     </div>

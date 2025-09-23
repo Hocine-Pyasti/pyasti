@@ -415,6 +415,37 @@ export const UserNameSchema = z.object({
   name: UserName,
 });
 
+export const UserProfileSchema = z.object({
+  name: UserName,
+  phoneNumber: z.string().min(8, "Numéro de téléphone invalide").optional(),
+  address: z
+    .object({
+      country: z.string().optional(),
+      province: z.string().optional(),
+      city: z.string().optional(),
+      street: z.string().optional(),
+      postalCode: z.string().optional(),
+    })
+    .optional()
+    .default({}),
+  shopDetails: z
+    .object({
+      bannerImage: z.string().min(3, "Image URL is required").optional(),
+      shopName: z
+        .string()
+        .min(3, "Shop name must be at least 3 characters")
+        .optional(),
+      shopPhone: z.string().min(8, "Numéro de téléphone invalide").optional(),
+      shopDescription: z
+        .string()
+        .min(20, "Shop description must be at least 20 characters")
+        .optional(),
+      shopAddress: z.string().optional(),
+    })
+    .optional()
+    .default({}),
+});
+
 // WEBPAGE
 export const WebPageInputSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters"),

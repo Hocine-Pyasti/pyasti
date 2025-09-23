@@ -24,9 +24,9 @@ export default async function AdminLayout({
             <Link href="/">
               <Image
                 src="/logo.png"
-                width={150}
-                height={40}
-                alt={`${site.name} logo`}
+                width={350}
+                height={300}
+                alt="Pyasti logo"
                 className="h-10 w-auto"
               />
             </Link>

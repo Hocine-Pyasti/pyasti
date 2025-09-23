@@ -2,12 +2,14 @@ import { HelpCircle } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
+import { useTranslations } from "next-intl";
 
 export default function CheckoutLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const t = useTranslations();
   return (
     <div className="p-4">
       <header className="bg-card mb-4 border-b">
@@ -16,16 +18,13 @@ export default function CheckoutLayout({
             <Image
               src="/logo.png"
               alt="logo"
-              width={70}
-              height={70}
-              style={{
-                maxWidth: "100%",
-                height: "auto",
-              }}
+              width={500}
+              height={500}
+              className="h-10 w-auto"
             />
           </Link>
           <div>
-            <h1 className="text-3xl">Checkout</h1>
+            <h1 className="text-3xl">{t("Cart.Checkout")} </h1>
           </div>
           <div>
             <Link href="/page/help">

@@ -25,19 +25,7 @@ export const createOrder = async (clientSideCart: Cart) => {
     const session = await auth();
     if (!session) throw new Error("User not authenticated");
 
-    // Test ClientOrder model connection
-    try {
-      const clientOrderCount = await ClientOrder.countDocuments();
-      console.log(
-        "🔍 [DEBUG] ClientOrder model is working, current count:",
-        clientOrderCount
-      );
-    } catch (error) {
-      console.error("❌ [DEBUG] ClientOrder model error:", error);
-      throw new Error("ClientOrder model not available");
-    }
-
-    // First, get all products to determine sellers and add seller info to items
+    // Get all products to determine sellers and add seller info to items
     const itemsWithSeller = await Promise.all(
       clientSideCart.items.map(async (item) => {
         const product = await Product.findById(item.product).populate(
@@ -82,50 +70,7 @@ export const createOrder = async (clientSideCart: Cart) => {
     const expectedDeliveryDate =
       clientSideCart.expectedDeliveryDate || new Date();
 
-    // Create the client order (unified order for the customer)
-    let clientOrderData;
-    try {
-      clientOrderData = ClientOrderInputSchema.parse({
-        user: session.user.id!,
-        items: itemsWithSeller,
-        shippingAddress: totalCart.shippingAddress,
-        paymentMethod: totalCart.paymentMethod,
-        itemsPrice: totalCart.itemsPrice,
-        shippingPrice: totalCart.shippingPrice,
-        taxPrice: totalCart.taxPrice,
-        totalPrice: totalCart.totalPrice,
-        expectedDeliveryDate: expectedDeliveryDate,
-      });
-      console.log("🔍 [DEBUG] Client order data validated successfully");
-    } catch (validationError) {
-      console.error(
-        "❌ [DEBUG] Validation error for client order:",
-        validationError
-      );
-      throw validationError;
-    }
-
-    console.log("🔍 [DEBUG] Creating client order with data:", {
-      userId: session.user.id,
-      itemsCount: itemsWithSeller.length,
-      totalPrice: totalCart.totalPrice,
-      expectedDeliveryDate: totalCart.expectedDeliveryDate,
-      expectedDeliveryDateType: typeof totalCart.expectedDeliveryDate,
-    });
-
-    let clientOrder;
-    try {
-      clientOrder = await ClientOrder.create(clientOrderData);
-      console.log("🔍 [DEBUG] Client order created successfully:", {
-        clientOrderId: clientOrder._id.toString(),
-        itemsCount: clientOrder.items.length,
-      });
-    } catch (error) {
-      console.error("❌ [DEBUG] Error creating client order:", error);
-      throw error;
-    }
-
-    // Group items by seller for seller orders
+    // Group items by seller for orders
     const itemsBySeller: Record<string, OrderItem[]> = {};
     for (const item of itemsWithSeller) {
       const sellerId = item.seller;
@@ -159,10 +104,9 @@ export const createOrder = async (clientSideCart: Cart) => {
           taxPrice: cartForSeller.taxPrice,
           totalPrice: cartForSeller.totalPrice,
           expectedDeliveryDate: cartForSeller.expectedDeliveryDate,
-          clientOrder: clientOrder._id.toString(),
         });
 
-        const sellerOrder = await Order.create(orderData);
+        const order = await Order.create(orderData);
 
         // Update product stock and sales
         await Promise.all(
@@ -173,27 +117,22 @@ export const createOrder = async (clientSideCart: Cart) => {
           })
         );
 
-        return sellerOrder;
+        return order;
       })
     );
 
-    // Update client order with seller order references
-    await ClientOrder.findByIdAndUpdate(clientOrder._id, {
-      sellerOrders: sellerOrders.map((order) => order._id),
-    });
+    // Use the first seller order for client and admin notifications (assuming at least one order exists)
+    const primaryOrder = sellerOrders[0];
+    if (!primaryOrder) {
+      throw new Error("No orders created for sellers");
+    }
 
-    // Send ONE purchase receipt to the client for the unified order
+    // Send purchase receipt to the client
     const user = await User.findById(session.user.id);
     const userLanguage = user?.language || "en-US";
 
-    // Create a mock order object for email sending that matches the expected structure
-    const clientOrderForEmail = {
-      ...clientOrder.toObject(),
-      seller: clientOrder.user, // Use user as seller for email compatibility
-    } as IOrder;
-
     await sendPurchaseReceipt({
-      order: clientOrderForEmail,
+      order: primaryOrder,
       email: session.user.email!,
       language: userLanguage,
     });
@@ -206,7 +145,7 @@ export const createOrder = async (clientSideCart: Cart) => {
           await sendPurchaseReceipt({
             order: sellerOrder,
             email: seller.email,
-            language: seller?.language || "en-US",
+            language: seller?.language || "fr",
           });
         }
       })
@@ -215,20 +154,20 @@ export const createOrder = async (clientSideCart: Cart) => {
     // Send to admin
     const { ADMIN_EMAIL } = await import("../constants");
     await sendPurchaseReceipt({
-      order: clientOrderForEmail,
+      order: primaryOrder,
       email: ADMIN_EMAIL,
-      language: "en-US",
+      language: "fr",
     });
 
     console.log("🔍 [DEBUG] Returning success response:", {
-      orderId: clientOrder._id.toString(),
+      orderId: primaryOrder._id.toString(),
       message: "Order placed successfully",
     });
 
     return {
       success: true,
       message: "Order placed successfully",
-      data: { orderId: clientOrder._id.toString() },
+      data: { orderId: primaryOrder._id.toString() },
     };
   } catch (error) {
     return { success: false, message: formatError(error) };
@@ -376,21 +315,21 @@ export async function deliverOrder(orderId: string) {
         order,
         email: order.user.email,
         status: "delivered",
-        language: order.user.language || "en-US",
+        language: order.user.language || "fr",
       }),
       seller && seller.email
         ? sendOrderStatusEmail({
             order,
             email: seller.email,
             status: "delivered",
-            language: seller.language || "en-US",
+            language: seller.language || "fr",
           })
         : null,
       sendOrderStatusEmail({
         order,
         email: ADMIN_EMAIL,
         status: "delivered",
-        language: "en-US",
+        language: "fr",
       }),
     ]);
     revalidatePath(`/account/orders/${orderId}`);
@@ -501,13 +440,13 @@ export async function getMyOrders({
     throw new Error("User is not authenticated");
   }
   const skipAmount = (Number(page) - 1) * limit;
-  const orders = await ClientOrder.find({
+  const orders = await Order.find({
     user: session?.user?.id,
   })
     .sort({ createdAt: "desc" })
     .skip(skipAmount)
     .limit(limit);
-  const ordersCount = await ClientOrder.countDocuments({
+  const ordersCount = await Order.countDocuments({
     user: session?.user?.id,
   });
 
@@ -553,19 +492,7 @@ export async function getSellerOrders({
 export async function getOrderById(orderId: string): Promise<IOrder> {
   await connectToDatabase();
 
-  // First try to find in ClientOrder collection
-  let order = await ClientOrder.findById(orderId);
-  if (order) {
-    // Convert client order to match IOrder interface for compatibility
-    const clientOrderData = order.toObject();
-    return {
-      ...clientOrderData,
-      seller: clientOrderData.user, // Use user as seller for compatibility
-    } as IOrder;
-  }
-
-  // If not found in ClientOrder, try Order collection (seller orders)
-  order = await Order.findById(orderId);
+  const order = await Order.findById(orderId);
   if (!order) {
     throw new Error("Order not found");
   }
@@ -679,7 +606,7 @@ export const calcDeliveryDateAndPrice = async ({
         ? 0
         : deliveryDate.shippingPrice;
 
-  const taxPrice = !shippingAddress ? undefined : round2(itemsPrice * 0.15);
+  const taxPrice = !shippingAddress ? undefined : round2(itemsPrice * 0);
   const totalPrice = round2(
     itemsPrice +
       (shippingPrice ? round2(shippingPrice) : 0) +
