@@ -27,7 +27,7 @@ const userSchema = new Schema<IUser>(
     emailVerified: { type: Boolean, default: false },
     verificationCode: { type: String, default: null },
     verificationCodeExpires: { type: Date, default: null },
-    language: { type: String, default: "en-US" },
+    language: { type: String, default: "fr" },
   },
   {
     timestamps: true,

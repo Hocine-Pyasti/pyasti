@@ -334,7 +334,7 @@ export const UserInputSchema = z.object({
   wallet: z.number().min(0).default(0),
   shopDetails: z.record(z.any()).optional(),
   emailVerified: z.boolean().default(false),
-  language: z.string().default("en-US"),
+  language: z.string().default("fr"),
 });
 
 export const UserSignInSchema = z.object({

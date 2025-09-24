@@ -3,6 +3,10 @@ import { routing } from "./i18n/routing";
 
 import NextAuth from "next-auth";
 import authConfig from "./auth.config";
+import { NextResponse } from "next/server";
+
+const intlMiddleware = createMiddleware(routing);
+const { auth } = NextAuth(authConfig);
 
 const publicPages = [
   "/",
@@ -15,43 +19,42 @@ const publicPages = [
   "/cart/(.*)",
   "/product/(.*)",
   "/page/(.*)",
-  // (/secret requires auth)
 ];
 
-const intlMiddleware = createMiddleware({
-  ...routing,
-  localeDetection: false, // Disable automatic locale detection to prevent redirects to unsupported locales like 'en-US'
-});
+// First apply next-intl routing
+export default function middleware(req: Request, ctx: any) {
+  const res = intlMiddleware(req);
 
-const { auth } = NextAuth(authConfig);
+  // After intl resolves, check auth
+  return auth((reqWithAuth: any) => {
+    const publicPathRegex = RegExp(
+      `^(/(${routing.locales.join("|")}))?(${publicPages
+        .flatMap((p) => (p === "/" ? ["", "/"] : p))
+        .join("|")})/?$`,
+      "i"
+    );
 
-export default auth((req) => {
-  const publicPathnameRegex = RegExp(
-    `^(/(${routing.locales.join("|")}))?(${publicPages
-      .flatMap((p) => (p === "/" ? ["", "/"] : p))
-      .join("|")})/?$`,
-    "i"
-  );
-  const isPublicPage = publicPathnameRegex.test(req.nextUrl.pathname);
+    const isPublicPage = publicPathRegex.test(reqWithAuth.nextUrl.pathname);
 
-  if (isPublicPage) {
-    return intlMiddleware(req);
-  } else {
-    if (!req.auth) {
+    if (isPublicPage) {
+      return res; // ✅ just use intl result
+    }
+
+    if (!reqWithAuth.auth) {
+      // Redirect to sign-in if not authenticated
       const newUrl = new URL(
         `/sign-in?callbackUrl=${
-          encodeURIComponent(req.nextUrl.pathname) || "/"
+          encodeURIComponent(reqWithAuth.nextUrl.pathname) || "/"
         }`,
-        req.nextUrl.origin
+        reqWithAuth.nextUrl.origin
       );
-      return Response.redirect(newUrl);
-    } else {
-      return intlMiddleware(req);
+      return NextResponse.redirect(newUrl);
     }
-  }
-});
+
+    return res; // ✅ authorized + localized
+  }, ctx)(req, ctx);
+}
 
 export const config = {
-  // Skip all paths that should not be internationalized
   matcher: ["/((?!api|_next|.*\\..*).*)"],
 };

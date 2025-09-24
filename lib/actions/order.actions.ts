@@ -128,7 +128,7 @@ export const createOrder = async (clientSideCart: Cart) => {
 
     // Send purchase receipt to the client
     const user = await User.findById(session.user.id);
-    const userLanguage = user?.language || "en-US";
+    const userLanguage = user?.language || "fr";
 
     await sendPurchaseReceipt({
       order: primaryOrder,
