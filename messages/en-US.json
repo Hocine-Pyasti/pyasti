@@ -86,7 +86,10 @@
     "Manage your orders": "Manage your orders",
     "Profile": "Profile",
     "Manage your profile information": "Manage your profile information",
-    "Error fetching user data": "Error fetching user data"
+    "Error fetching user data": "Error fetching user data",
+    "Admin": "Admin",
+    "Seller": "Seller",
+    "User": "User"
   },
   "Header": {
     "Hello": "Hello",

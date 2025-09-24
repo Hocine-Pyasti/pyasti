@@ -56,36 +56,45 @@ export default async function OrdersPage(props: {
                 </TableCell>
               </TableRow>
             )}
-            {orders.data.map((order: IOrder) => (
-              <TableRow key={order._id}>
-                <TableCell>
-                  <Link href={`/account/orders/${order._id}`}>
-                    {formatId(order._id)}
-                  </Link>
-                </TableCell>
-                <TableCell>
-                  {formatDateTime(order.createdAt!).dateTime}
-                </TableCell>
-                <TableCell>
-                  <ProductPrice price={order.totalPrice} plain />
-                </TableCell>
-                <TableCell>
-                  {order.isPaid && order.paidAt
-                    ? formatDateTime(order.paidAt).dateTime
-                    : "No"}
-                </TableCell>
-                <TableCell>
-                  {order.isDelivered && order.deliveredAt
-                    ? formatDateTime(order.deliveredAt).dateTime
-                    : "No"}
-                </TableCell>
-                <TableCell>
-                  <Link href={`/account/orders/${order._id}`}>
-                    <span className="px-2">Details</span>
-                  </Link>
-                </TableCell>
-              </TableRow>
-            ))}
+            {orders.data.map((order: IOrder) => {
+              let rowClass = "";
+              if (order.isPaid && !order.isDelivered) {
+                rowClass = "bg-blue-200";
+              } else if (order.isPaid && order.isDelivered) {
+                rowClass = "bg-green-200";
+              }
+
+              return (
+                <TableRow key={order._id} className={rowClass}>
+                  <TableCell>
+                    <Link href={`/account/orders/${order._id}`}>
+                      {formatId(order._id)}
+                    </Link>
+                  </TableCell>
+                  <TableCell>
+                    {formatDateTime(order.createdAt!).dateTime}
+                  </TableCell>
+                  <TableCell>
+                    <ProductPrice price={order.totalPrice} plain />
+                  </TableCell>
+                  <TableCell>
+                    {order.isPaid && order.paidAt
+                      ? formatDateTime(order.paidAt).dateTime
+                      : "No"}
+                  </TableCell>
+                  <TableCell>
+                    {order.isDelivered && order.deliveredAt
+                      ? formatDateTime(order.deliveredAt).dateTime
+                      : "No"}
+                  </TableCell>
+                  <TableCell>
+                    <Link href={`/account/orders/${order._id}`}>
+                      <span className="px-2">Details</span>
+                    </Link>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
         {orders.totalPages > 1 && (

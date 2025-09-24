@@ -63,11 +63,11 @@ PurchaseReceiptEmail.PreviewProps = {
     isDelivered: true,
   } as unknown as IOrder,
 } satisfies OrderInformationProps;
-const dateFormatter = new Intl.DateTimeFormat("en", { dateStyle: "medium" });
+const dateFormatter = new Intl.DateTimeFormat("fr", { dateStyle: "medium" });
 
 export default async function PurchaseReceiptEmail({
   order,
-  language = "en",
+  language = "fr",
 }: OrderInformationProps) {
   const { site } = await getSetting();
   return (

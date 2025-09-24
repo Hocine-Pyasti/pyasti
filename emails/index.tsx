@@ -9,16 +9,19 @@ import {
 export const sendPurchaseReceipt = async ({
   order,
   email,
-  language = "en",
+  language = "fr",
+  description,
 }: {
   order: IOrder;
   email: string;
   language?: string;
+  description: string;
 }) => {
   return await sendPurchaseReceiptNodemailer({
     order,
     email,
     language,
+    description,
   });
 };
 
@@ -73,9 +76,9 @@ export const sendOrderStatusEmail = async ({
   order,
   email,
   status,
-  language = "en",
+  language = "fr",
 }: {
-  order: { _id: string };
+  order: { _id: string; totalPrice: number };
   email: string;
   status: "cancelled" | "delivered";
   language?: string;
@@ -84,26 +87,30 @@ export const sendOrderStatusEmail = async ({
     cancelled: {
       fr: {
         subject: "Commande annulée",
-        body: (orderId: string) => `Votre commande ${orderId} a été annulée.`,
+        body: (orderId: string) =>
+          `Votre commande de <strong>${order.totalPrice} DA </strong> <br/> ID: ${orderId} a été annulée. ❌`,
       },
       en: {
         subject: "Order Cancelled",
-        body: (orderId: string) => `Your order ${orderId} has been cancelled.`,
+        body: (orderId: string) =>
+          `Your order of <strong>${order.totalPrice} DA </strong> <br/> ID: ${orderId} has been cancelled. ❌`,
       },
     },
     delivered: {
       fr: {
         subject: "Commande livrée",
-        body: (orderId: string) => `Votre commande ${orderId} a été livrée.`,
+        body: (orderId: string) =>
+          `Votre commande de  <strong>${order.totalPrice} DA </strong> <br/>  ID: ${orderId} a été livrée. 🚚✅`,
       },
       en: {
         subject: "Order Delivered",
-        body: (orderId: string) => `Your order ${orderId} has been delivered.`,
+        body: (orderId: string) =>
+          `Your order of <strong>${order.totalPrice} DA </strong>  <br/> ID: ${orderId} has been delivered. 🚚✅`,
       },
     },
   };
 
-  const lang = (["fr", "en"].includes(language) ? language : "en") as
+  const lang = (["fr", "en"].includes(language) ? language : "fr") as
     | "fr"
     | "en";
   const subject = EMAIL_TEMPLATES[status][lang].subject;
@@ -121,7 +128,7 @@ export const sendOrderStatusEmail = async ({
   });
 
   await transporter.sendMail({
-    from: `support <${process.env.SENDER_EMAIL || "onboarding@resend.dev"}>`,
+    from: `PYASTI support <${process.env.SENDER_EMAIL || "onboarding@resend.dev"}>`,
     to: email,
     subject,
     text,

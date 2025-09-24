@@ -52,7 +52,7 @@ export default function OverviewReport() {
     }
   }, [date]);
 
-  // console.log("🔍 [DEBUG] OverviewReport data:", data);
+  console.log("🔍 [DEBUG] OverviewReport data:", data);
 
   if (!data)
     return (

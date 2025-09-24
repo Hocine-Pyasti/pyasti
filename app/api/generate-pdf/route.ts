@@ -18,22 +18,13 @@ export async function POST(request: Request) {
     const publicLogoPath = join(process.cwd(), "public", "logo.png");
     copyFileSync(publicLogoPath, logoFilePath);
 
-    // Update LaTeX content to use the temporary logo path
-    const updatedLatexContent = latexContent.replace(
-      "/public/logo.png",
-      logoFilePath
-    );
-
     // Write LaTeX content to a .tex file
-    writeFileSync(texFilePath, updatedLatexContent);
+    writeFileSync(texFilePath, latexContent);
 
     // Run latexmk to generate PDF
-    execSync(
-      `/Library/TeX/texbin/latexmk -pdf -output-directory=${tempDir} ${texFilePath}`,
-      {
-        stdio: "inherit",
-      }
-    );
+    execSync(`latexmk -pdf -output-directory=${tempDir} ${texFilePath}`, {
+      stdio: "inherit",
+    });
 
     // Read the generated PDF
     const pdfBuffer = require("fs").readFileSync(pdfFilePath);
@@ -41,7 +32,7 @@ export async function POST(request: Request) {
     // Clean up temporary files
     unlinkSync(texFilePath);
     unlinkSync(pdfFilePath);
-    unlinkSync(logoFilePath); // Clean up logo file
+    unlinkSync(logoFilePath);
     const auxFiles = [
       ".aux",
       ".log",
@@ -54,7 +45,9 @@ export async function POST(request: Request) {
     auxFiles.forEach((ext) => {
       try {
         unlinkSync(join(tempDir, `${fileName}${ext}`));
-      } catch (e) {}
+      } catch (e) {
+        console.warn(`Failed to delete auxiliary file ${fileName}${ext}:`, e);
+      }
     });
 
     // Return PDF as response

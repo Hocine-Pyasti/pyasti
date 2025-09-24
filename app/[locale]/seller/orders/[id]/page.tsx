@@ -34,12 +34,12 @@ const SellerOrderDetailsPage = async (props: {
 
   return (
     <main className="max-w-6xl mx-auto p-4">
-      <div className="flex mb-4">
-        <Link href="/seller/orders">Orders</Link>{" "}
+      <div className="flex mb-4 text-white text-shadow-md font-bold">
+        <Link href="/seller/orders">Commandes</Link>{" "}
         <span className="mx-1">›</span>
         <Link href={`/seller/orders/${order._id}`}>{order._id}</Link>
       </div>
-      <OrderDetailsForm order={order} isAdmin={false} />
+      <OrderDetailsForm order={order} isPrivileged={true} />
     </main>
   );
 };

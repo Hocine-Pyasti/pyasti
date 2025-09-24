@@ -1,4 +1,4 @@
-export const SENDER_NAME = process.env.SENDER_NAME || "support";
+export const SENDER_NAME = process.env.SENDER_NAME || "PYASTI support";
 export const SENDER_EMAIL = process.env.SENDER_EMAIL || "pyasti.dz@gmail.com";
 export const ADMIN_EMAIL =
   process.env.ADMIN_EMAIL || "admin.pyasti.dz@gmail.com";

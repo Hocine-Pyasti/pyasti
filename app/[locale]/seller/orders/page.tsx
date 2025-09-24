@@ -52,37 +52,44 @@ export default async function OrdersPage(props: {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {orders.data.map((order: IOrderList) => (
-              <TableRow key={order._id}>
-                <TableCell>{formatId(order._id)}</TableCell>
-                <TableCell>
-                  {formatDateTime(order.createdAt!).dateTime}
-                </TableCell>
-                <TableCell>
-                  {order.user ? order.user.name : "Deleted User"}
-                </TableCell>
-                <TableCell>
-                  {" "}
-                  <ProductPrice price={order.totalPrice} plain />
-                </TableCell>
-                <TableCell>
-                  {order.isPaid && order.paidAt
-                    ? formatDateTime(order.paidAt).dateTime
-                    : "No"}
-                </TableCell>
-                <TableCell>
-                  {order.isDelivered && order.deliveredAt
-                    ? formatDateTime(order.deliveredAt).dateTime
-                    : "No"}
-                </TableCell>
-                <TableCell className="flex gap-1">
-                  <Button asChild variant="outline" size="sm">
-                    <Link href={`/seller/orders/${order._id}`}>Details</Link>
-                  </Button>
-                  <DeleteDialog id={order._id} action={deleteOrder} />
-                </TableCell>
-              </TableRow>
-            ))}
+            {orders.data.map((order: IOrderList) => {
+              let rowClass = "";
+              if (order.isPaid && !order.isDelivered) {
+                rowClass = "bg-blue-200";
+              } else if (order.isPaid && order.isDelivered) {
+                rowClass = "bg-green-200";
+              }
+              return (
+                <TableRow key={order._id} className={rowClass}>
+                  <TableCell>{formatId(order._id)}</TableCell>
+                  <TableCell>
+                    {formatDateTime(order.createdAt!).dateTime}
+                  </TableCell>
+                  <TableCell>
+                    {order.user ? order.user.name : "Deleted User"}
+                  </TableCell>
+                  <TableCell>
+                    <ProductPrice price={order.totalPrice} plain />
+                  </TableCell>
+                  <TableCell>
+                    {order.isPaid && order.paidAt
+                      ? formatDateTime(order.paidAt).dateTime
+                      : "No"}
+                  </TableCell>
+                  <TableCell>
+                    {order.isDelivered && order.deliveredAt
+                      ? formatDateTime(order.deliveredAt).dateTime
+                      : "No"}
+                  </TableCell>
+                  <TableCell className="flex gap-1">
+                    <Button asChild variant="outline" size="sm">
+                      <Link href={`/admin/orders/${order._id}`}>Details</Link>
+                    </Button>
+                    <DeleteDialog id={order._id} action={deleteOrder} />
+                  </TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
         {orders.totalPages > 1 && (

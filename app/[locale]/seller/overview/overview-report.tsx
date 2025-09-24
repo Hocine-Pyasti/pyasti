@@ -51,7 +51,6 @@ export default function OverviewReport() {
       });
     }
   }, [date]);
-  console.log("data", data);
 
   if (!data)
     return (

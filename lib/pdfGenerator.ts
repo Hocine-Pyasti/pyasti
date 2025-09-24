@@ -3,13 +3,19 @@ import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
 export const generateBillPDF = async (order: IOrder) => {
-  const escapeLatex = (str: string) =>
-    str ? str.replace(/([&%$#_{}~^\\])/g, "\\$1") : "";
+  const escapeLatex = (str: string) => {
+    if (!str) return "";
+    // Remove or replace unsupported Unicode characters (e.g., emojis)
+    const cleanedStr = str.replace(/[\u{1F000}-\u{1FFFF}]/gu, "");
+    // Escape LaTeX special characters
+    return cleanedStr.replace(/([&%$#_{}~^\\])/g, "\\$1");
+  };
 
-  // Build item rows
+  // Build item rows for the table
   const itemRows = order.items
     .map((item) => {
-      return `${escapeLatex(item.name)} (${escapeLatex(item.brand)}, ${escapeLatex(item.partNumber)}) & ${item.quantity} & ${item.price.toFixed(2)} DZD & ${(item.quantity * item.price).toFixed(2)} DZD \\\\`;
+      const totalItemPrice = (item.price * item.quantity).toFixed(2);
+      return `${escapeLatex(item.name)} (${escapeLatex(item.brand)}, ${escapeLatex(item.partNumber)}) & ${item.quantity} & ${item.price.toFixed(2)} DZD & ${totalItemPrice} DZD \\\\`;
     })
     .join("\n");
 
@@ -37,40 +43,33 @@ export const generateBillPDF = async (order: IOrder) => {
 \\section*{Détails de la Commande}
 \\begin{tabular}{ll}
   \\textbf{Numéro de commande} & ${escapeLatex(order._id.toString())} \\\\
+  \\textbf{Date de commande} & ${format(order.createdAt, "d MMM yyyy", { locale: fr })} \\\\
+  \\textbf{Date de livraison prévue} & ${format(order.expectedDeliveryDate, "d MMM yyyy", { locale: fr })} \\\\
   \\textbf{Méthode de paiement} & ${escapeLatex(order.paymentMethod)} \\\\
   \\textbf{Statut du paiement} & ${order.isPaid ? "Payé" : "Non payé"} \\\\
-  \\textbf{Date de livraison prévue} & ${format(
-    order.expectedDeliveryDate,
-    "d MMM yyyy",
-    { locale: fr }
-  )} \\\\
   \\textbf{Statut de livraison} & ${order.isDelivered ? "Livré" : "Non livré"} \\\\
 \\end{tabular}
 
 % Client Address
-\\section*{Adresse du Client}
+\\section*{Adresse de Livraison}
 \\begin{tabular}{ll}
   \\textbf{Nom} & ${escapeLatex(order.shippingAddress.fullName)} \\\\
   \\textbf{Téléphone} & ${escapeLatex(order.shippingAddress.phone)} \\\\
-  \\textbf{Adresse} & ${escapeLatex(order.shippingAddress.street)}, ${escapeLatex(
-    order.shippingAddress.city
-  )}, ${escapeLatex(order.shippingAddress.province)}, ${escapeLatex(
-    order.shippingAddress.postalCode
-  )}, ${escapeLatex(order.shippingAddress.country)} \\\\
+  \\textbf{Adresse} & ${escapeLatex(order.shippingAddress.street)}, ${escapeLatex(order.shippingAddress.city)}, ${escapeLatex(order.shippingAddress.province)}, ${escapeLatex(order.shippingAddress.postalCode)}, ${escapeLatex(order.shippingAddress.country)} \\\\
 \\end{tabular}
 
 % Items
 \\section*{Articles Commandés}
-\\begin{tabular}{>{\\raggedright\\arraybackslash}p{6cm}>{\\centering\\arraybackslash}p{2cm}>{\\centering\\arraybackslash}p{2cm}>{\\centering\\arraybackslash}p{3cm}}
+\\begin{tabular}{>{\\raggedright\\arraybackslash}p{6cm}>{\\centering\\arraybackslash}p{2cm}>{\\centering\\arraybackslash}p{3cm}>{\\centering\\arraybackslash}p{3cm}}
   \\toprule
-  \\textbf{Article} & \\textbf{Quantité} & \\textbf{Prix Unitaire} & \\textbf{Total} \\\\
+  \\textbf{Article} & \\textbf{Quantité} & \\textbf{Prix unitaire} & \\textbf{Total} \\\\
   \\midrule
   ${itemRows}
   \\bottomrule
 \\end{tabular}
 
-% Price Summary
-\\section*{Résumé des Prix}
+% Pricing Summary
+\\section*{Résumé des Coûts}
 \\begin{tabular}{lr}
   \\textbf{Prix des articles} & ${order.itemsPrice.toFixed(2)} DZD \\\\
   \\textbf{Frais de livraison} & ${order.shippingPrice.toFixed(2)} DZD \\\\
@@ -94,7 +93,7 @@ export const generateBillPDF = async (order: IOrder) => {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       latexContent,
-      fileName: `pyasti-${order._id}.pdf`,
+      fileName: `pyasti-order-${order._id}.pdf`,
     }),
   });
 

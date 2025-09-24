@@ -29,7 +29,15 @@ export default async function UserButton() {
                 {session ? session.user.name : t("Header.sign in")}
               </span>
               <span className="font-bold bg-primary px-1 rounded text-center">
-                {session ? session.user.role : ""}{" "}
+                {session
+                  ? session.user.role === "Admin"
+                    ? t("All.Admin")
+                    : session.user.role === "Seller"
+                      ? t("All.Seller")
+                      : session.user.role === "User"
+                        ? t("All.User")
+                        : ""
+                  : ""}
               </span>
             </div>
             <ChevronDownIcon />

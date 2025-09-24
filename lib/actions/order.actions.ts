@@ -4,9 +4,8 @@ import { Cart, IOrderList, OrderItem, ShippingAddress } from "@/types";
 import { formatError, round2 } from "../utils";
 import { connectToDatabase } from "../db";
 import { auth } from "@/auth";
-import { OrderInputSchema, ClientOrderInputSchema } from "../validator";
+import { OrderInputSchema } from "../validator";
 import Order, { IOrder } from "../db/models/order.model";
-import ClientOrder from "../db/models/client-order.model";
 import { revalidatePath } from "next/cache";
 import { sendPurchaseReceipt } from "@/emails";
 import { paypal } from "../paypal";
@@ -245,8 +244,8 @@ export async function updateOrderToPaid(orderId: string) {
   try {
     await connectToDatabase();
     const order = await Order.findById(orderId).populate<{
-      user: { email: string; name: string };
-    }>("user", "name email");
+      user: { email: string; name: string; language?: string };
+    }>("user", "name email language");
     if (!order) throw new Error("Order not found");
     if (order.isPaid) throw new Error("Order is already paid");
     order.isPaid = true;
@@ -254,13 +253,20 @@ export async function updateOrderToPaid(orderId: string) {
     await order.save();
     if (!process.env.MONGODB_URI?.startsWith("mongodb://localhost"))
       await updateProductStock(order._id);
-    if (order.user.email) await sendPurchaseReceipt({ order });
+    if (order.user.email)
+      await sendPurchaseReceipt({
+        order,
+        email: order.user.email,
+        language: order.user.language || "fr",
+        description: "Paiement confirmé ✅. Merci pour votre achat !",
+      });
     revalidatePath(`/account/orders/${orderId}`);
     return { success: true, message: "Order paid successfully" };
   } catch (err) {
     return { success: false, message: formatError(err) };
   }
 }
+
 const updateProductStock = async (orderId: string) => {
   const session = await mongoose.connection.startSession();
 
@@ -315,14 +321,14 @@ export async function deliverOrder(orderId: string) {
         order,
         email: order.user.email,
         status: "delivered",
-        language: order.user.language || "fr",
+        language: "fr",
       }),
       seller && seller.email
         ? sendOrderStatusEmail({
             order,
             email: seller.email,
             status: "delivered",
-            language: seller.language || "fr",
+            language: "fr",
           })
         : null,
       sendOrderStatusEmail({
@@ -643,12 +649,7 @@ export async function getOrderSummary(date: DateRange) {
       $lte: date.to,
     },
   });
-  const productsCount = await Product.countDocuments({
-    createdAt: {
-      $gte: date.from,
-      $lte: date.to,
-    },
-  });
+  const productsCount = await Product.countDocuments();
   const usersCount = await User.countDocuments({
     createdAt: {
       $gte: date.from,
@@ -747,10 +748,6 @@ export async function getSellerOrderSummary(date: DateRange) {
 
   const productsCount = await Product.countDocuments({
     seller: sellerId,
-    createdAt: {
-      $gte: date.from,
-      $lte: date.to,
-    },
   });
 
   const totalSalesResult = await Order.aggregate([

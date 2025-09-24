@@ -53,7 +53,9 @@ export default function OrderDetailsForm({
     <div className="grid md:grid-cols-3 md:gap-5">
       <div className="overflow-x-auto md:col-span-2 space-y-4">
         <div className="flex justify-between items-center">
-          <h2 className="text-xl font-bold">{t("All.Order Details")}</h2>
+          <h2 className="text-xl font-bold text-white text-shadow-md">
+            {t("All.Order Details")}
+          </h2>
           <Button onClick={handleDownloadPDF} className="rounded-full">
             {t("All.Download Bill")}
           </Button>
@@ -187,7 +189,7 @@ export default function OrderDetailsForm({
                 />
               )}
 
-            {/* Allow Admin, Worker, Business to mark delivery */}
+            {/* Allow Admin, and Seller to mark delivery */}
             {isPrivileged && isPaid && !isDelivered && (
               <ActionButton
                 caption={t("All.Mark as delivered")}

@@ -205,7 +205,8 @@ export const sendWelcomeEmail = async ({
 export const sendPurchaseReceipt = async ({
   order,
   email,
-  language = "en",
+  language = "fr",
+  description,
 }: {
   order: {
     _id: string;
@@ -215,6 +216,7 @@ export const sendPurchaseReceipt = async ({
   };
   email: string;
   language?: string;
+  description: string;
 }) => {
   console.log("🛒 [DEBUG] Starting purchase receipt email...");
   console.log("🛒 [DEBUG] Order ID:", order._id);
@@ -230,7 +232,11 @@ export const sendPurchaseReceipt = async ({
     console.log("🛒 [DEBUG] Generated subject:", subject);
 
     // Convert React email component to HTML string
-    const html = await generatePurchaseReceiptHTML(order, language);
+    const html = await generatePurchaseReceiptHTML(
+      order,
+      language,
+      description
+    );
     console.log("🛒 [DEBUG] Generated HTML length:", html.length);
 
     const result = await sendEmail({
@@ -312,7 +318,7 @@ export const sendOrderStatusEmail = async ({
   order,
   email,
   status,
-  language = "en",
+  language = "fr",
 }: {
   order: { _id: string };
   email: string;
@@ -348,7 +354,7 @@ export const sendOrderStatusEmail = async ({
     },
   };
 
-  const lang = (["fr", "en"].includes(language) ? language : "en") as
+  const lang = (["fr", "en"].includes(language) ? language : "fr") as
     | "fr"
     | "en";
   const subject = EMAIL_TEMPLATES[status][lang].subject;
@@ -396,7 +402,8 @@ async function generatePurchaseReceiptHTML(
     totalPrice: number;
     createdAt: string | Date;
   },
-  language: string
+  language: string,
+  description: string
 ) {
   console.log("🔧 [DEBUG] Generating purchase receipt HTML...");
   console.log("🔧 [DEBUG] Processing", order.items.length, "items");
@@ -407,7 +414,7 @@ async function generatePurchaseReceiptHTML(
       (item: { name: string; price: number; quantity: number }) => `
     <tr>
       <td>${item.name} x ${item.quantity}</td>
-      <td>$${item.price}</td>
+      <td>${item.price}</td>
     </tr>
   `
     )
@@ -429,11 +436,25 @@ async function generatePurchaseReceiptHTML(
         <tbody>
           ${items}
         </tbody>
+
       </table>
       
       <div style="text-align: right; margin-top: 20px;">
-        <p><strong>Total:</strong> $${order.totalPrice}</p>
+        <p><strong>Total:</strong> ${order.totalPrice} DA</p>
       </div>
+      <div style="margin-top: 30px;"> 
+             ${description}
+      </div>
+      <p>Merci d'avoir choisi PYASTI</p>
+      <p>Visiter note site web</p>
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="${"https://pyasti.com"}"
+           style="background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px;">
+          Aller à PYASTI
+        </a>
+      </div>
+        
+      
     </div>
   `;
 

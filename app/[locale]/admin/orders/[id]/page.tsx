@@ -23,18 +23,18 @@ const AdminOrderDetailsPage = async (props: {
   if (!order) notFound();
 
   const session = await auth();
+  if (session?.user?.role !== "Admin") {
+    throw new Error("Admin permission required");
+  }
 
   return (
     <main className="max-w-6xl mx-auto p-4">
-      <div className="flex mb-4">
-        <Link href="/admin/orders">Commandes</Link>{" "}
+      <div className="flex mb-4 text-white font-bold text-shadow-md">
+        <Link href="/admin/orders">Commande</Link>{" "}
         <span className="mx-1">›</span>
         <Link href={`/admin/orders/${order._id}`}>{order._id}</Link>
       </div>
-      <OrderDetailsForm
-        order={order}
-        isAdmin={session?.user?.role === "Admin" || false}
-      />
+      <OrderDetailsForm order={order} isPrivileged={true} />
     </main>
   );
 };
