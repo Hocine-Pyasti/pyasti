@@ -18,7 +18,11 @@ const publicPages = [
   // (/secret requires auth)
 ];
 
-const intlMiddleware = createMiddleware(routing);
+const intlMiddleware = createMiddleware({
+  ...routing,
+  localeDetection: false, // Disable automatic locale detection to prevent redirects to unsupported locales like 'en-US'
+});
+
 const { auth } = NextAuth(authConfig);
 
 export default auth((req) => {
@@ -31,7 +35,6 @@ export default auth((req) => {
   const isPublicPage = publicPathnameRegex.test(req.nextUrl.pathname);
 
   if (isPublicPage) {
-    // return NextResponse.next()
     return intlMiddleware(req);
   } else {
     if (!req.auth) {
