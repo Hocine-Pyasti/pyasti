@@ -71,6 +71,7 @@ const orderSchema = new Schema<IOrder>(
     shippingPrice: { type: Number, required: true },
     taxPrice: { type: Number, required: true },
     totalPrice: { type: Number, required: true },
+    status: { type: String, default: "Processing" },
     isPaid: { type: Boolean, required: true, default: false },
     paidAt: { type: Date },
     isDelivered: { type: Boolean, required: true, default: false },

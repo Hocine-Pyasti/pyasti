@@ -184,6 +184,7 @@ export const OrderInputSchema = z.object({
   shippingPrice: z.number().min(0),
   taxPrice: z.number().min(0),
   totalPrice: z.number().min(0),
+  status: z.string().optional(),
   expectedDeliveryDate: z.date(),
   isPaid: z.boolean().default(false),
   paidAt: z.date().optional(),

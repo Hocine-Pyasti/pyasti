@@ -43,8 +43,8 @@ export default async function OrdersPage(props: {
               <TableHead>Id</TableHead>
               <TableHead>Date</TableHead>
               <TableHead>Total</TableHead>
-              <TableHead>Paid</TableHead>
-              <TableHead>Delivered</TableHead>
+              <TableHead>Payé</TableHead>
+              <TableHead>Livré</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>

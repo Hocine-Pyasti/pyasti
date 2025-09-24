@@ -13,10 +13,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { deleteOrder, getAllOrders } from "@/lib/actions/order.actions";
+import {
+  cancelOrder,
+  deleteOrder,
+  getAllOrders,
+} from "@/lib/actions/order.actions";
 import { formatDateTime, formatId } from "@/lib/utils";
 import { IOrderList } from "@/types";
 import ProductPrice from "@/components/shared/product/product-price";
+import CancelDialog from "@/components/shared/cancel-dialog";
 
 export const metadata: Metadata = {
   title: "Admin Orders",
@@ -48,6 +53,7 @@ export default async function OrdersPage(props: {
               <TableHead>Total</TableHead>
               <TableHead>Payé</TableHead>
               <TableHead>Livré</TableHead>
+              <TableHead>Status</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -81,11 +87,28 @@ export default async function OrdersPage(props: {
                       ? formatDateTime(order.deliveredAt).dateTime
                       : "No"}
                   </TableCell>
+                  <TableCell
+                    className={
+                      order.status === "Processing"
+                        ? "bg-amber-400"
+                        : order.status === "Completed"
+                          ? "bg-green-400"
+                          : order.status === "Cancelled"
+                            ? "bg-amber-800 text-white"
+                            : ""
+                    }
+                  >
+                    {order.status || "...⌛"}
+                  </TableCell>
                   <TableCell className="flex gap-1">
                     <Button asChild variant="outline" size="sm">
                       <Link href={`/admin/orders/${order._id}`}>Details</Link>
                     </Button>
                     <DeleteDialog id={order._id} action={deleteOrder} />
+                    {order.status !== "Cancelled" &&
+                      order.status !== "Completed" && (
+                        <CancelDialog id={order._id} action={cancelOrder} />
+                      )}
                   </TableCell>
                 </TableRow>
               );

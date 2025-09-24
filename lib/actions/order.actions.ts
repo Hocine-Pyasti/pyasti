@@ -312,6 +312,7 @@ export async function deliverOrder(orderId: string) {
     if (!order.isPaid) throw new Error("Order is not paid");
     order.isDelivered = true;
     order.deliveredAt = new Date();
+    order.status = "Completed";
     await order.save();
     // Send delivery notification to client, seller, and admin
     const seller = await User.findById(order.seller);
@@ -321,14 +322,14 @@ export async function deliverOrder(orderId: string) {
         order,
         email: order.user.email,
         status: "delivered",
-        language: "fr",
+        language: order.user.language || "fr",
       }),
       seller && seller.email
         ? sendOrderStatusEmail({
             order,
             email: seller.email,
             status: "delivered",
-            language: "fr",
+            language: seller.language || "fr",
           })
         : null,
       sendOrderStatusEmail({
@@ -353,7 +354,7 @@ export async function cancelOrder(orderId: string) {
       "email name language"
     );
     if (!order) throw new Error("Order not found");
-    order.status = "cancelled";
+    order.status = "Cancelled";
     await order.save();
     // Send cancellation notification to client, seller, and admin
     const seller = await User.findById(order.seller);

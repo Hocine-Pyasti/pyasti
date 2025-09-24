@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import Link from "next/link";
 
 import { auth } from "@/auth";
-import DeleteDialog from "@/components/shared/delete-dialog";
+import CancelDialog from "@/components/shared/cancel-dialog";
 import Pagination from "@/components/shared/pagination";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,7 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { deleteOrder, getSellerOrders } from "@/lib/actions/order.actions";
+import { cancelOrder, getSellerOrders } from "@/lib/actions/order.actions";
 import { formatDateTime, formatId } from "@/lib/utils";
 import { IOrderList } from "@/types";
 import ProductPrice from "@/components/shared/product/product-price";
@@ -83,9 +83,12 @@ export default async function OrdersPage(props: {
                   </TableCell>
                   <TableCell className="flex gap-1">
                     <Button asChild variant="outline" size="sm">
-                      <Link href={`/admin/orders/${order._id}`}>Details</Link>
+                      <Link href={`/seller/orders/${order._id}`}>Details</Link>
                     </Button>
-                    <DeleteDialog id={order._id} action={deleteOrder} />
+                    {order.status !== "Cancelled" &&
+                      order.status !== "Completed" && (
+                        <CancelDialog id={order._id} action={cancelOrder} />
+                      )}
                   </TableCell>
                 </TableRow>
               );
