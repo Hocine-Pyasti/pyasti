@@ -48,7 +48,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         if (user && user.password) {
           if (!user.emailVerified) {
-            // Block login if email is not verified
             return null;
           }
           const isMatch = await bcrypt.compare(
@@ -73,12 +72,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (user) {
         if (!user.name) {
           await connectToDatabase();
+          const fallbackName = user.email!.split("@")[0];
           await User.findByIdAndUpdate(user.id, {
-            name: user.name || user.email!.split("@")[0],
+            name: user.name || fallbackName,
             role: "User",
           });
+          token.name = user.name || fallbackName;
+        } else {
+          token.name = user.name;
         }
-        token.name = user.name || user.email!.split("@")[0];
         token.role = (user as { role: string }).role;
       }
 
