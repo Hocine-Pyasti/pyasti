@@ -27,7 +27,7 @@ export function HomeCarousel({ items }: { items: ICarousel[] }) {
     <Carousel
       dir="ltr"
       plugins={[plugin.current]}
-      className=" mx-10 bg-card my-5 rounded-xl backdrop-blur-md"
+      className=" mx-10 bg-card mb-2 mt-10 rounded-xl backdrop-blur-md"
       onMouseEnter={plugin.current.stop}
       onMouseLeave={plugin.current.reset}
     >
@@ -46,7 +46,7 @@ export function HomeCarousel({ items }: { items: ICarousel[] }) {
                 <div className="absolute w-1/3 left-16 md:left-32 top-1/2 transform -translate-y-1/2">
                   <h2
                     className={cn(
-                      "text-xl md:text-6xl font-bold mb-4 text-primary  "
+                      "text-md md:text-6xl font-bold mb-4 text-primary  "
                     )}
                   >
                     {item.title}

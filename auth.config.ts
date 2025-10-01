@@ -10,6 +10,7 @@ export default {
         /\/checkout(\/.*)?/,
         /\/account(\/.*)?/,
         /\/admin(\/.*)?/,
+        /\/seller(\/.*)?/,
       ];
       const { pathname } = request.nextUrl;
       if (protectedPaths.some((p) => p.test(pathname))) return !!auth;

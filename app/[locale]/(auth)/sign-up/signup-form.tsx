@@ -33,6 +33,8 @@ import Image from "next/image";
 import { UploadButton } from "@/lib/uploadthing";
 import { Card, CardContent } from "@/components/ui/card";
 import { useTranslations } from "next-intl";
+import SetMapLatLong from "@/components/shared/map/set-map-lat-long";
+import dynamic from "next/dynamic";
 
 const signUpDefaultValues: IUserSignUp = {
   name: "",
@@ -43,10 +45,13 @@ const signUpDefaultValues: IUserSignUp = {
   address: {
     country: "Algeria",
     province: "",
+    province: "",
     city: "",
     street: "",
     postalCode: "",
   },
+  latitude: "",
+  longitude: "",
   image: "",
   role: "User",
   shopDetails: {},
@@ -66,11 +71,11 @@ export default function CredentialsSignInForm() {
     defaultValues: signUpDefaultValues,
   });
 
-  const { control, handleSubmit, watch } = form;
+  const { control, handleSubmit, watch, setValue } = form;
   const role = watch("role");
   // console.log("form Data:", form);
   const onSubmit = async (data: IUserSignUp) => {
-    console.log("Form data:", data);
+    // console.log("Form data:", data);
     try {
       const res = await registerUser(data);
       if (!res.success) {
@@ -118,6 +123,11 @@ export default function CredentialsSignInForm() {
     "/avatars/shop4.jpg",
     "/avatars/shop5.jpg",
   ];
+
+  const handleLocationChange = (lat: number, lng: number) => {
+    setValue("latitude", lat.toString());
+    setValue("longitude", lng.toString());
+  };
 
   return (
     <Form {...form}>
@@ -315,6 +325,27 @@ export default function CredentialsSignInForm() {
               </FormItem>
             )}
           />
+
+          {/* Integrated Map Component for Location Selection */}
+          <FormItem>
+            <FormLabel>{t("Location")}</FormLabel>
+            <SetMapLatLong onLocationChange={handleLocationChange} />
+            <FormControl>
+              <div className="hidden">
+                <FormField
+                  control={control}
+                  name="latitude"
+                  render={({ field }) => <Input {...field} />}
+                />
+                <FormField
+                  control={control}
+                  name="longitude"
+                  render={({ field }) => <Input {...field} />}
+                />
+              </div>
+            </FormControl>
+            <FormMessage />
+          </FormItem>
 
           <FormField
             control={control}

@@ -325,6 +325,8 @@ export const UserInputSchema = z.object({
       phone: z.string().min(1, "Phone number is required"),
     })
     .optional(),
+  latitude: z.string().optional(),
+  longitude: z.string().optional(),
   role: UserRole,
   password: Password,
   image: z.string().optional(),
@@ -356,6 +358,8 @@ export const UserSignUpSchema = UserSignInSchema.extend({
     })
     .optional()
     .default({}),
+  latitude: z.string().optional(),
+  longitude: z.string().optional(),
   image: z.string().min(3, "Image URL is required").optional(),
   role: z.enum(["User", "Seller"]).default("User"),
   shopDetails: z

@@ -138,7 +138,7 @@ export default function CredentialsSignInForm() {
           />
 
           <div className="flex items-center justify-center">
-            <Button type="submit">Sign In</Button>
+            <Button type="submit">{t("Sign In")} </Button>
           </div>
           <div className="text-sm">
             {t("Privacy text")}

@@ -28,6 +28,8 @@ export async function registerUser(userSignUp: IUserSignUp) {
       gender: userSignUp.gender,
       dateOfBirth: userSignUp.dateOfBirth,
       address: userSignUp.address,
+      latitude: userSignUp.latitude,
+      longitude: userSignUp.longitude,
       image: userSignUp.image,
       role: userSignUp.role,
       shopDetails: userSignUp.shopDetails,

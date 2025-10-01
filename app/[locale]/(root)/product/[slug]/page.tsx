@@ -17,6 +17,7 @@ import BrowsingHistoryList from "@/components/shared/browsing-history-list";
 import RatingSummary from "@/components/shared/product/rating-summary";
 import ProductSlider from "@/components/shared/product/product-slider";
 import { getTranslations } from "next-intl/server";
+import SellerOnMap from "@/components/shared/map/seller-on-map";
 
 export async function generateMetadata(props: {
   params: Promise<{ slug: string }>;
@@ -54,7 +55,7 @@ export default async function ProductDetails(props: {
 
   const t = await getTranslations();
   return (
-    <div>
+    <div className="pt-10 px-2 md:px-10 lg:px-20">
       <AddToBrowsingHistory
         id={product._id}
         subCategory={product.subCategory.toString()}
@@ -68,9 +69,24 @@ export default async function ProductDetails(props: {
           <div className="flex w-full flex-col gap-2 md:p-5 col-span-2">
             <div className="flex flex-col gap-3">
               <p className="p-medium-16 rounded-full bg-grey-500/10 text-grey-500">
-                {t("Product.Brand")} {product.brand} {product.subCategory.name}
+                {product.subCategory.name}
               </p>
-              <h1 className="font-bold text-lg lg:text-xl">{product.name}</h1>
+
+              <h1 className="font-bold text-xl lg:text-2xl text-blue-500">
+                {product.name}
+              </h1>
+              <p>
+                {" "}
+                <span className="font-bold">
+                  {t("Product.Part Number")} :
+                </span>{" "}
+                {product.partNumber}
+              </p>
+              <p>
+                {" "}
+                <span className="font-bold">{t("Product.Brand")} :</span>{" "}
+                {product.brand}
+              </p>
 
               <RatingSummary
                 avgRating={product.avgRating?.valueOf() || 0}
@@ -152,6 +168,71 @@ export default async function ProductDetails(props: {
             </Card>
           </div>
         </div>
+      </section>
+      <Separator />
+      <section className="mt-10 grid grid-cols-1 gap-5 md:grid md:grid-cols-2">
+        <div className="px-0 md:px-5">
+          <div>
+            {product.vehicleCompatibility &&
+            product.vehicleCompatibility.length > 0 ? (
+              <div>
+                <h3 className="font-bold mb-2">
+                  {t("Product.Vehicle Compatibility")}
+                </h3>
+                <ul className="list-disc pl-5">
+                  {product.vehicleCompatibility.map((vc, idx) => (
+                    <li key={idx} className="mb-1">
+                      <span className="font-semibold">{vc.make}</span>{" "}
+                      <span>{vc.model}</span>{" "}
+                      <span>
+                        (
+                        {vc.year && Array.isArray(vc.year)
+                          ? vc.year.join(", ")
+                          : vc.year}
+                        )
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : (
+              <p>
+                {" "}
+                <span className="text-grey-500">
+                  {t("Product.No vehicle compatibility information available")}
+                </span>
+              </p>
+            )}
+          </div>
+          <div className="mt-5 md:mt-0">
+            {product.specifications &&
+            typeof product.specifications === "object" ? (
+              <div>
+                <h3 className="font-bold mb-2">
+                  {t("Product.Specifications")}
+                </h3>
+                <ul className="list-disc pl-5">
+                  {Object.entries(product.specifications).map(
+                    ([key, value]) => (
+                      <li key={key} className="mb-1">
+                        <span className="font-semibold">{key}:</span>{" "}
+                        <span>{value}</span>
+                      </li>
+                    )
+                  )}
+                </ul>
+              </div>
+            ) : (
+              <span className="text-grey-500">
+                {t("Product.No specifications available")}
+              </span>
+            )}
+          </div>
+        </div>
+        <SellerOnMap
+          sellerId={product.seller.toString()}
+          clientId={session?.user.id || ""}
+        />
       </section>
       <section className="mt-10">
         <h2 className="h2-bold mb-2" id="reviews">

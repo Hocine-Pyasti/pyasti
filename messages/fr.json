@@ -89,7 +89,10 @@
     "Error fetching user data": "Erreur lors de la récupération des données de l'utilisateur",
     "Admin": "Admin",
     "Seller": "Vendeur",
-    "User": "Client"
+    "User": "Client",
+    "distance": "distance",
+    "open_on_map": "Ouvrir sur la carte",
+    "no_location": "Aucun emplacement disponible"
   },
   "Header": {
     "Hello": "Bonjour",
@@ -156,20 +159,21 @@
     "Province": "Wilaya",
     "City": "Ville",
     "Address": "Adresse",
+    "Location": "Emplacement",
     "Postal Code": "Code postal",
     "Profile Image": "Image de profil",
     "Role": "Rôle",
     "User": "Client",
     "Seller": "Vendeur",
     "Banner Image": "Image de bannière",
-    "Shop Name": "Nom de la boutique",
-    "Shop Description": "Description de la boutique",
-    "Shop Phone": "Téléphone de la boutique",
-    "Shop Address": "Adresse de la boutique",
-    "Shop Type": "Type de boutique",
+    "Shop Name": "Nom de la Magasin",
+    "Shop Description": "Description de la Magasin",
+    "Shop Phone": "Téléphone de la Magasin",
+    "Shop Address": "Adresse de la Magasin",
+    "Shop Type": "Type de Magasin",
     "Physical Shop": {
-      "title": "Boutique physique",
-      "description": "Une boutique qui vend ses produits exclusivement dans un magasin physique. Les clients doivent se rendre sur place pour acheter des pièces détachées automobiles."
+      "title": "Magasin physique",
+      "description": "Un Magasin qui vend ses produits exclusivement dans un magasin physique. Les clients doivent se rendre sur place pour acheter des pièces détachées automobiles."
     },
     "Online Shop": {
       "title": "Boutique en ligne",
@@ -293,6 +297,7 @@
     "Quantity": "Quantité",
     "items": "articles",
     "Your Shopping Cart is empty": "Votre panier d'achat est vide.",
+    "Continue shopping on PYASTI": "Continuer vos achats sur PYASTI.",
     "Your order qualifies for FREE Shipping": "Votre commande bénéficie de la livraison gratuite.",
     "of eligible items to your order to qualify for FREE Shipping": "d'articles éligibles à votre commande pour bénéficier de la livraison gratuite.",
     "Continue shopping on": "Continuer vos achats sur <home>la page d'accueil de {name}</home>",

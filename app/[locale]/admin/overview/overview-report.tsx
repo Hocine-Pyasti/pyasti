@@ -52,13 +52,11 @@ export default function OverviewReport() {
     }
   }, [date]);
 
-  console.log("🔍 [DEBUG] OverviewReport data:", data);
-
   if (!data)
     return (
       <div className="space-y-4">
         <div>
-          <h1 className="h1-bold">Dashboard</h1>
+          <h1 className="h1-bold">{t("Dashboard")}</h1>
         </div>
         {/* First Row */}
         <div className="flex gap-4">

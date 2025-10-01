@@ -89,7 +89,10 @@
     "Error fetching user data": "خطأ في جلب بيانات المستخدم",
     "Admin": "المدير",
     "Seller": "البائع",
-    "User": "العميل"
+    "User": "العميل",
+    "distance": "المسافة",
+    "open_on_map": "افتح على الخريطة",
+    "no_location": "لا يوجد موقع متاح"
   },
 
   "Header": {
@@ -157,6 +160,7 @@
     "Province": "الولاية",
     "City": "المدينة",
     "Address": "العنوان",
+    "Location": "الموقع",
     "Postal Code": "الرمز البريدي",
     "Profile Image": "صورة الملف الشخصي",
     "Role": "الدور",
@@ -294,6 +298,7 @@
     "Quantity": "الكمية",
     "items": "عناصر",
     "Your Shopping Cart is empty": "سلة التسوق الخاصة بك فارغة.",
+    "Continue shopping on PYASTI": "مواصلة التسوق على PYASTI",
     "Your order qualifies for FREE Shipping": "طلبك مؤهل للشحن المجاني.",
     "of eligible items to your order to qualify for FREE Shipping": "من العناصر المؤهلة لطلبك للتأهل للشحن المجاني.",
     "Continue shopping on": "مواصلة التسوق على <home>الصفحة الرئيسية لـ {name}</home>",

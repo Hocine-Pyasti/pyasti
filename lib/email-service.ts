@@ -171,10 +171,17 @@ export const sendWelcomeEmail = async ({
 
   try {
     const html = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 5px;">
         <h2 style="color: #333;">Bienvenue!</h2>
         <p>Bonjour <strong>${name}</strong>! votre compte a été vérifié avec succès.</p>
-        <p>Thank you for joining our platform!</p>
+        <p>Merci d'avoir rejoint la plateforme PYASTI </p>
+        <p>Visiter notre site web</p>
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${"https://pyasti.com"}"
+             style="background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px;">
+            Aller à PYASTI
+          </a>
+        </div>
       </div>
     `;
 

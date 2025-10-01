@@ -3,5 +3,5 @@ export const SENDER_EMAIL = process.env.SENDER_EMAIL || "pyasti.dz@gmail.com";
 export const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "pyasti.adz@gmail.com";
 
 export const USER_ROLES = ["Admin", "Seller", "User"];
-export const COLORS = ["Gold", "Green", "Red", "Blue"];
+export const COLORS = ["Blue", "Green", "Red", "Gold"];
 export const THEMES = ["Light", "Dark", "System"];

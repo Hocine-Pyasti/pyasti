@@ -17,6 +17,8 @@ const userSchema = new Schema<IUser>(
     gender: { type: String },
     dateOfBirth: { type: String, default: "" },
     address: { type: Object, default: {} },
+    latitude: { type: String, default: "" },
+    longitude: { type: String, default: "" },
     role: { type: String, required: true, default: "User" },
     password: { type: String },
     image: { type: String },

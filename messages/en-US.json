@@ -89,7 +89,10 @@
     "Error fetching user data": "Error fetching user data",
     "Admin": "Admin",
     "Seller": "Seller",
-    "User": "User"
+    "User": "User",
+    "distance": "distance",
+    "open_on_map": "Open on map",
+    "no_location": "No location available"
   },
   "Header": {
     "Hello": "Hello",
@@ -156,6 +159,7 @@
     "Province": "Wilaya",
     "City": "City",
     "Address": "Address",
+    "Location": "Location",
     "Postal Code": "Postal Code",
     "Profile Image": "Profile Image",
     "Role": "Role",
@@ -295,6 +299,7 @@
     "Quantity": "Quantity",
     "items": "items",
     "Your Shopping Cart is empty": "Your Shopping Cart is empty.",
+    "Continue shopping on PYASTI": "Continue shopping on PYASTI.",
     "Your order qualifies for FREE Shipping": "Your order qualifies for FREE Shipping.",
     "of eligible items to your order to qualify for FREE Shipping": "of eligible items to your order to qualify for FREE Shipping.",
     "Continue shopping on": "Continue shopping on <home>{name} home page</home>",

@@ -33,14 +33,29 @@ export default async function AuthLayout({
         </Link>
       </header>
       <main className="mx-auto max-w-lg min-w-80 p-4">{children}</main>
-      <footer className="flex-1 mt-8 bg-gray-800 w-full flex flex-col gap-4 items-center p-8 text-sm">
-        <div className="flex justify-center space-x-4">
-          <Link href="/page/conditions-of-use">Conditions of Use</Link>
-          <Link href="/page/privacy-policy">Privacy Notice</Link>
-          <Link href="/page/help">Help</Link>
+      <footer className="flex-1 mt-8 bg-blue-900/70 backdrop-blur-md w-full flex flex-col gap-4 items-center p-8 text-sm">
+        <div className="flex justify-center space-x-4 text-gray-200">
+          <Link style={{ color: "#f9f9f9" }} href="/page/conditions-of-use">
+            Conditions of Use
+          </Link>
+          <Link style={{ color: "#f9f9f9" }} href="/page/privacy-policy">
+            Privacy Notice
+          </Link>
+          <Link style={{ color: "#f9f9f9" }} href="/page/help">
+            Help
+          </Link>
         </div>
-        <div>
-          <p className="text-gray-400">{site.copyright}</p>
+        <div className="flex flex-col md:flex-row justify-center items-center space-y-2 md:space-y-0 md:space-x-2">
+          <p className="text-gray-200 font-bold">{site.copyright} </p>{" "}
+          <a
+            className="text-green-400 font-bold no-underline"
+            href="https://gcosmosweb.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: "#00fb04" }}
+          >
+            By GCW
+          </a>
         </div>
       </footer>
     </div>

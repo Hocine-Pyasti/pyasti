@@ -52,7 +52,7 @@ export default async function OrdersPage(props: {
             {orders.data.length === 0 && (
               <TableRow>
                 <TableCell colSpan={6} className="">
-                  You have no orders.
+                  Vous n&apos;avez aucune commande.
                 </TableCell>
               </TableRow>
             )}
