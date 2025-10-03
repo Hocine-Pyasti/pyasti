@@ -59,6 +59,7 @@
     "Order Total": "Total de la commande",
     "Item": "Article",
     "Booking Type": "Type de réservation",
+    "Type": "Type",
     "Slots": "Créneaux",
     "Slots Selected": "Créneaux sélectionnés",
     "Checkout Privacy text": "En passant votre commande, vous acceptez la politique de confidentialité et les conditions d'utilisation de Pyasti.",
@@ -92,7 +93,9 @@
     "User": "Client",
     "distance": "distance",
     "open_on_map": "Ouvrir sur la carte",
-    "no_location": "Aucun emplacement disponible"
+    "drag_marker": "Faites glisser le marqueur ou cliquez sur la carte pour définir votre emplacement",
+    "no_location": "Aucun emplacement disponible",
+    "please_login_to_see_distance": "Veuillez vous connecter pour voir la distance"
   },
   "Header": {
     "Hello": "Bonjour",
@@ -128,7 +131,8 @@
     "Help": "Aide",
     "Site Menu": "Menu du site",
     "Subtotal": "Sous-total",
-    "Go to cart": "Aller au panier"
+    "Go to cart": "Aller au panier",
+    "Map": "Carte"
   },
   "Home": {
     "Categories to explore": "Catégories à explorer",

@@ -17,7 +17,7 @@ L.Icon.Default.mergeOptions({
 
 const shopIcon = new L.Icon({
   iconUrl: "/images/shop-marker.png",
-  iconSize: [32, 32],
+  iconSize: [32, 42],
   iconAnchor: [16, 32],
   popupAnchor: [0, -32],
   shadowSize: [32, 32],
@@ -25,7 +25,7 @@ const shopIcon = new L.Icon({
 
 interface SellerOnMapProps {
   sellerId: string;
-  clientId: string;
+  clientId?: string; // Made optional
 }
 
 const SellerOnMap: React.FC<SellerOnMapProps> = ({ sellerId, clientId }) => {
@@ -41,38 +41,45 @@ const SellerOnMap: React.FC<SellerOnMapProps> = ({ sellerId, clientId }) => {
   const [distance, setDistance] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showLoginMessage, setShowLoginMessage] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const sellerData = await getUserById(sellerId);
-        const clientData = await getUserById(clientId);
 
         if (!sellerData || !sellerData.latitude || !sellerData.longitude) {
           throw new Error("Seller location not available");
-        }
-        if (!clientData || !clientData.latitude || !clientData.longitude) {
-          throw new Error("Client location not available");
         }
 
         const sellerLatLng = {
           lat: parseFloat(sellerData.latitude),
           lng: parseFloat(sellerData.longitude),
         };
-        const clientLatLng = {
-          lat: parseFloat(clientData.latitude),
-          lng: parseFloat(clientData.longitude),
-        };
-
         setSellerPosition(sellerLatLng);
-        setClientPosition(clientLatLng);
 
-        // Calculate distance using Leaflet's distanceTo
-        const dist =
-          L.latLng(sellerLatLng.lat, sellerLatLng.lng).distanceTo(
-            L.latLng(clientLatLng.lat, clientLatLng.lng)
-          ) / 1000; // Convert to KM
-        setDistance(dist);
+        if (clientId) {
+          const clientData = await getUserById(clientId);
+
+          if (!clientData || !clientData.latitude || !clientData.longitude) {
+            setShowLoginMessage(true); // If client data missing, assume not logged in
+          } else {
+            const clientLatLng = {
+              lat: parseFloat(clientData.latitude),
+              lng: parseFloat(clientData.longitude),
+            };
+            setClientPosition(clientLatLng);
+
+            // Calculate distance
+            const dist =
+              L.latLng(sellerLatLng.lat, sellerLatLng.lng).distanceTo(
+                L.latLng(clientLatLng.lat, clientLatLng.lng)
+              ) / 1000; // Convert to KM
+            setDistance(dist);
+          }
+        } else {
+          setShowLoginMessage(true); // No clientId provided
+        }
       } catch (err) {
         setError((err as Error).message || "Failed to fetch location data");
       } finally {
@@ -104,9 +111,15 @@ const SellerOnMap: React.FC<SellerOnMapProps> = ({ sellerId, clientId }) => {
 
   return (
     <div className="space-y-4">
-      <p className="text-center font-semibold">
-        {t("distance")}: {distance?.toFixed(2) ?? "N/A"} KM{" "}
-      </p>
+      {showLoginMessage ? (
+        <p className="text-center font-semibold text-muted-foreground">
+          {t("please_login_to_see_distance")}
+        </p>
+      ) : (
+        <p className="text-center font-semibold">
+          {t("distance")}: {distance?.toFixed(2) ?? "N/A"} KM
+        </p>
+      )}
       <div className="w-full h-64 border rounded-md overflow-hidden">
         <MapContainer
           center={sellerPosition}

@@ -59,6 +59,7 @@
     "Order Total": "Order Total",
     "Item": "Item",
     "Booking Type": "Booking Type",
+    "Type": "Type",
     "Slots": "Slots",
     "Slots Selected": "Slots Selected",
     "Checkout Privacy text": "By placing your order, you agree to Chofly's Privacy and Conditions of Use.",
@@ -92,7 +93,9 @@
     "User": "User",
     "distance": "distance",
     "open_on_map": "Open on map",
-    "no_location": "No location available"
+    "drag_marker": "Drag the marker or click on the map to set your location",
+    "no_location": "No location available",
+    "please_login_to_see_distance": "Please login to see distance"
   },
   "Header": {
     "Hello": "Hello",
@@ -128,7 +131,8 @@
     "Help": "Help",
     "Site Menu": "Site Menu",
     "Subtotal": "Subtotal",
-    "Go to cart": "Go to cart"
+    "Go to cart": "Go to cart",
+    "Map": "Map"
   },
   "Home": {
     "Categories to explore": "Categories to explore",

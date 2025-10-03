@@ -42,7 +42,7 @@ const SetMapLatLong: React.FC<SetMapLatLongProps> = ({
   initialLat,
   initialLng,
 }) => {
-  const t = useTranslations("Map");
+  const t = useTranslations("All");
   const [position, setPosition] = useState<{ lat: number; lng: number }>({
     lat: initialLat || 36.743637,
     lng: initialLng || 5.08697,

@@ -202,6 +202,31 @@ export async function getAllUsers({
     totalPages: Math.ceil(usersCount / limit),
   };
 }
+// GET ALL SELLERS
+export async function getAllSellersForMap() {
+  await connectToDatabase();
+  const sellers = await User.find(
+    { role: "Seller" },
+    { latitude: 1, longitude: 1, shopDetails: 1 }
+  ).sort({ createdAt: "desc" });
+  return JSON.parse(JSON.stringify(sellers)) as Pick<
+    IUser,
+    "latitude" | "longitude" | "shopDetails"
+  >[];
+}
+
+export async function getPublicUserDataById(userId: string) {
+  await connectToDatabase();
+  const user = await User.findOne(
+    { _id: userId },
+    { role: 1, latitude: 1, longitude: 1, shopDetails: 1 }
+  );
+  if (!user) throw new Error("Seller not found");
+  return JSON.parse(JSON.stringify(user)) as Pick<
+    IUser,
+    "role" | "latitude" | "longitude" | "shopDetails"
+  >;
+}
 
 export async function getUserById(userId: string) {
   await connectToDatabase();

@@ -15,6 +15,7 @@ import { formatNumber, generateId, round2 } from "@/lib/utils";
 import ProductPrice from "./product-price";
 import ImageHover from "./image-hover";
 import AddToCart from "./add-to-cart";
+import DisplayUserData from "../display-user-data";
 
 const ProductCard = ({
   product,
@@ -111,8 +112,11 @@ const ProductCard = ({
       )}
     </div>
   ) : (
-    <Card className="flex flex-col  ">
-      <CardHeader className="p-3">
+    <Card className="pt-4 flex flex-col mb-2 ">
+      <div className="absolute top-[-10px]  self-center z-10 bg-gray-300/50 rounded-md shadow backdrop-blur-md">
+        <DisplayUserData userId={product.seller.toString()} showName />
+      </div>
+      <CardHeader className="p-0">
         <ProductImage />
       </CardHeader>
       {!hideDetails && (

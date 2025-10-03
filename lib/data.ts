@@ -15,6 +15,10 @@ const data: Data = {
   webPages: [],
   headerMenus: [
     {
+      name: "Map",
+      href: "/map",
+    },
+    {
       name: "Today's Deal",
       href: "/search?tag=todays-deal",
     },
