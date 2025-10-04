@@ -7,8 +7,8 @@ import { round2 } from "@/lib/utils";
 const initialState: Cart = {
   items: [],
   itemsPrice: 0,
-  taxPrice: undefined,
-  shippingPrice: undefined,
+  taxPrice: 0,
+  shippingPrice: 0,
   totalPrice: 0,
   paymentMethod: undefined,
   shippingAddress: undefined,

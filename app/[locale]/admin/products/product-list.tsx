@@ -30,7 +30,7 @@ type ProductListDataProps = {
   from: number;
 };
 
-const ProductList = () => {
+const ProductList = ({ userId }: { userId: string }) => {
   const [page, setPage] = useState<number>(1);
   const [inputValue, setInputValue] = useState<string>("");
   const [data, setData] = useState<ProductListDataProps | null>(null);
@@ -112,12 +112,13 @@ const ProductList = () => {
               <TableRow>
                 <TableHead>Id</TableHead>
                 <TableHead>Name</TableHead>
-                <TableHead className="text-right">Price</TableHead>
-                <TableHead>SubCategory</TableHead>
+                <TableHead>Prix DZD</TableHead>
+                <TableHead>Sous-cat</TableHead>
+                <TableHead>Vendeur</TableHead>
                 <TableHead>Stock</TableHead>
                 <TableHead>Rating</TableHead>
-                <TableHead>Published</TableHead>
-                <TableHead>Last Update</TableHead>
+                <TableHead>Publier </TableHead>
+                <TableHead>Mise a jour</TableHead>
                 <TableHead className="w-[100px]">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -130,10 +131,17 @@ const ProductList = () => {
                       {product.name}
                     </Link>
                   </TableCell>
-                  <TableCell className="text-right">
-                    {product.price} DZD
-                  </TableCell>
+                  <TableCell>{product.price}</TableCell>
                   <TableCell>{product.subCategory?.name || "N/A"}</TableCell>
+                  <TableCell
+                    className={
+                      product.seller === userId
+                        ? "bg-green-500 text-white font-bold"
+                        : ""
+                    }
+                  >
+                    {product.seller === userId ? "Moi" : "Autre"}
+                  </TableCell>
                   <TableCell>{product.countInStock}</TableCell>
                   <TableCell>{product.avgRating}</TableCell>
                   <TableCell>{product.isPublished ? "Yes" : "No"}</TableCell>

@@ -181,76 +181,20 @@ export const OrderInputSchema = z.object({
     })
     .optional(),
   itemsPrice: z.number().min(0),
-  shippingPrice: z.number().min(0),
+  shippingMethod: z.object({
+    name: z.string(),
+    daysToDeliver: z.number(),
+    shippingPrice: z.number(),
+    freeShippingMinPrice: z.number(),
+  }),
   taxPrice: z.number().min(0),
   totalPrice: z.number().min(0),
   status: z.string().optional(),
-  expectedDeliveryDate: z.date(),
   isPaid: z.boolean().default(false),
   paidAt: z.date().optional(),
   isDelivered: z.boolean().default(false),
   deliveredAt: z.date().optional(),
   clientOrder: z.string().optional(),
-});
-
-// Client Order
-export const ClientOrderInputSchema = z.object({
-  user: z.string(),
-  items: z.array(
-    z.object({
-      product: z.string(),
-      clientId: z.string(),
-      name: z.string(),
-      slug: z.string(),
-      image: z.string(),
-      price: z.number().min(0),
-      discountPrice: z.number().min(0).optional(),
-      countInStock: z.number().min(0),
-      quantity: z.number().min(1),
-      subCategory: z.string(),
-      brand: z.string(),
-      partNumber: z.string(),
-      color: z.string().optional(),
-      vehicleCompatibility: z
-        .array(
-          z.object({
-            make: z.string(),
-            model: z.string(),
-            year: z.array(z.number()),
-          })
-        )
-        .optional(),
-      specifications: z.record(z.string()).optional(),
-      seller: z.string(),
-    })
-  ),
-  shippingAddress: z.object({
-    fullName: z.string().min(1),
-    street: z.string().min(1),
-    city: z.string().min(1),
-    postalCode: z.string().min(1),
-    country: z.string().min(1),
-    province: z.string().min(1),
-    phone: z.string().min(1),
-  }),
-  paymentMethod: z.string().min(1),
-  paymentResult: z
-    .object({
-      id: z.string(),
-      status: z.string(),
-      email_address: z.string(),
-    })
-    .optional(),
-  itemsPrice: z.number().min(0),
-  shippingPrice: z.number().min(0),
-  taxPrice: z.number().min(0),
-  totalPrice: z.number().min(0),
-  expectedDeliveryDate: z.date(),
-  isPaid: z.boolean().default(false),
-  paidAt: z.date().optional(),
-  isDelivered: z.boolean().default(false),
-  deliveredAt: z.date().optional(),
-  sellerOrders: z.array(z.string()).optional(),
 });
 
 // Cart
@@ -261,12 +205,18 @@ export const CartSchema = z.object({
     .min(1, "Order must contain at least one item"),
   itemsPrice: z.number(),
   taxPrice: z.optional(z.number()),
-  shippingPrice: z.optional(z.number()),
+  shippingMethod: z.optional(
+    z.object({
+      name: z.string(),
+      daysToDeliver: z.number(),
+      shippingPrice: z.number(),
+      freeShippingMinPrice: z.number(),
+    })
+  ),
   totalPrice: z.number(),
   paymentMethod: z.optional(z.string()),
   shippingAddress: z.optional(ShippingAddressSchema),
   deliveryDateIndex: z.optional(z.number()),
-  expectedDeliveryDate: z.optional(z.date()),
 });
 
 // USER

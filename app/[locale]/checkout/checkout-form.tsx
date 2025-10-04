@@ -56,11 +56,16 @@ const CheckoutForm = () => {
   const { toast } = useToast();
   const router = useRouter();
   const { setting, initialize } = useSettingStore();
+  const [shippingPrice, setShippingPrice] = useState<number>(0);
+  const [selectedDelivery, setSelectedDelivery] = useState<any>(null);
+
+  console.log(selectedDelivery);
+  console.log(shippingPrice);
+
   const {
     cart: {
       items,
       itemsPrice,
-      shippingPrice,
       taxPrice,
       totalPrice,
       shippingAddress,
@@ -84,23 +89,30 @@ const CheckoutForm = () => {
   const [isAddressSelected, setIsAddressSelected] = useState<boolean>(false);
   const [isPaymentMethodSelected, setIsPaymentMethodSelected] =
     useState<boolean>(false);
-  const [isDeliveryDateSelected, setIsDeliveryDateSelected] =
-    useState<boolean>(false);
+  const [isDeliverySelected, setIsDeliverySelected] = useState<boolean>(false);
 
-  // Initialize setting store and set default delivery date
+  // Initialize setting store and set default delivery
   useEffect(() => {
     if (!setting) {
       initialize();
-    } else if (deliveryDateIndex === undefined && setting.defaultDeliveryDate) {
-      const defaultIndex = setting.availableDeliveryDates.findIndex(
-        (date) => date.name === setting.defaultDeliveryDate
-      );
-      if (defaultIndex !== -1) {
-        setDeliveryDateIndex(defaultIndex);
-        setIsDeliveryDateSelected(true);
-      }
+      return;
     }
-  }, [setting, initialize, deliveryDateIndex, setDeliveryDateIndex]);
+    if (setting.availableDeliveryDates.length > 0) {
+      if (deliveryDateIndex === undefined) {
+        setDeliveryDateIndex(0);
+      }
+      const initialDelivery = setting.availableDeliveryDates[0];
+      setSelectedDelivery(initialDelivery);
+      const calculatedShippingPrice = initialDelivery.shippingPrice;
+      setShippingPrice(calculatedShippingPrice);
+    }
+  }, [
+    setting,
+    initialize,
+    deliveryDateIndex,
+    setDeliveryDateIndex,
+    itemsPrice,
+  ]);
 
   useEffect(() => {
     if (!isMounted || !shippingAddress) return;
@@ -132,7 +144,6 @@ const CheckoutForm = () => {
   };
 
   const handlePlaceOrder = async () => {
-    // Ensure deliveryDateIndex is set before placing order
     if (deliveryDateIndex === undefined || deliveryDateIndex === null) {
       toast({
         description: t("Order.Please select a delivery date"),
@@ -144,15 +155,12 @@ const CheckoutForm = () => {
     const res = await createOrder({
       items,
       shippingAddress,
-      expectedDeliveryDate: calculateFutureDate(
-        availableDeliveryDates[deliveryDateIndex].daysToDeliver
-      ),
       deliveryDateIndex,
       paymentMethod: finalPaymentMethod,
       itemsPrice,
-      shippingPrice,
+      shippingMethod: selectedDelivery,
       taxPrice,
-      totalPrice,
+      totalPrice: itemsPrice + taxPrice + shippingPrice,
     });
     if (!res.success) {
       toast({
@@ -178,14 +186,24 @@ const CheckoutForm = () => {
   };
 
   const handleSelectPaymentMethod = () => {
-    setIsAddressSelected(true);
     setIsPaymentMethodSelected(true);
-    setIsDeliveryDateSelected(!!deliveryDateIndex); // Maintain delivery date selection
   };
 
   const handleSelectShippingAddress = () => {
     shippingAddressForm.handleSubmit(onSubmitShippingAddress)();
   };
+
+  const handleSelectShippingMethod = () => {
+    setIsDeliverySelected(true);
+  };
+
+  // Update shipping price when itemsPrice or selectedDelivery changes
+  useEffect(() => {
+    if (selectedDelivery) {
+      const newShippingPrice = selectedDelivery.shippingPrice;
+      setShippingPrice(newShippingPrice);
+    }
+  }, [itemsPrice, selectedDelivery]);
 
   // Helper function to get delivery date info safely
   const getDeliveryDateInfo = (index: number | undefined) => {
@@ -203,7 +221,6 @@ const CheckoutForm = () => {
     return {
       date: formatDateTime(deliveryDateObj).dateOnly,
       shippingCost:
-        deliveryDate.freeShippingMinPrice > 0 &&
         itemsPrice >= deliveryDate.freeShippingMinPrice
           ? 0
           : deliveryDate.shippingPrice,
@@ -211,6 +228,8 @@ const CheckoutForm = () => {
       isValid: true,
     };
   };
+
+  const localTotalPrice = itemsPrice + taxPrice + shippingPrice;
 
   const CheckoutSummary = () => (
     <Card>
@@ -246,7 +265,7 @@ const CheckoutForm = () => {
             <Button
               onClick={handlePlaceOrder}
               className="rounded-full w-full"
-              disabled={deliveryDateIndex === undefined}
+              disabled={!isDeliverySelected}
             >
               {t("Order.Place Order")}
             </Button>
@@ -271,9 +290,7 @@ const CheckoutForm = () => {
             <div className="flex justify-between">
               <span>{t("Order.Shipping & Handling")} </span>
               <span>
-                {shippingPrice === undefined ? (
-                  "--"
-                ) : shippingPrice === 0 ? (
+                {shippingPrice === 0 ? (
                   t("Order.FREE Shipping")
                 ) : (
                   <ProductPrice price={shippingPrice} plain />
@@ -283,17 +300,13 @@ const CheckoutForm = () => {
             <div className="flex justify-between">
               <span>{t("Order.Tax")}</span>
               <span>
-                {taxPrice === undefined ? (
-                  "--"
-                ) : (
-                  <ProductPrice price={taxPrice} plain />
-                )}
+                <ProductPrice price={taxPrice} plain />
               </span>
             </div>
             <div className="flex justify-between pt-4 font-bold text-lg">
               <span>{t("Order.Order Total")} </span>
               <span>
-                <ProductPrice price={totalPrice} plain />
+                <ProductPrice price={localTotalPrice} plain />
               </span>
             </div>
           </div>
@@ -327,7 +340,7 @@ const CheckoutForm = () => {
                     onClick={() => {
                       setIsAddressSelected(false);
                       setIsPaymentMethodSelected(false);
-                      setIsDeliveryDateSelected(false);
+                      setIsDeliverySelected(false);
                     }}
                   >
                     {t("All.Change")}
@@ -480,7 +493,7 @@ const CheckoutForm = () => {
                           type="submit"
                           className="rounded-full font-bold"
                         >
-                          {t("Order.Shipping Address")}
+                          {t("All.Continue")}
                         </Button>
                       </CardFooter>
                     </Card>
@@ -506,7 +519,7 @@ const CheckoutForm = () => {
                     variant="outline"
                     onClick={() => {
                       setIsPaymentMethodSelected(false);
-                      setIsDeliveryDateSelected(false);
+                      setIsDeliverySelected(false);
                     }}
                   >
                     {t("All.Change")}
@@ -547,7 +560,7 @@ const CheckoutForm = () => {
                       className="rounded-full font-bold"
                       disabled={!paymentMethod}
                     >
-                      {t("Order.Use this payment method")}
+                      {t("All.Continue")}
                     </Button>
                   </CardFooter>
                 </Card>
@@ -560,37 +573,33 @@ const CheckoutForm = () => {
             )}
           </div>
 
-          {/* items and delivery date */}
+          {/* delivery options */}
           <div>
-            {isDeliveryDateSelected && deliveryDateIndex !== undefined ? (
+            {isDeliverySelected && deliveryDateIndex !== undefined ? (
               <div className="grid grid-cols-1 md:grid-cols-12 my-3 pb-3">
                 <div className="flex text-lg font-bold col-span-5">
                   <span className="w-8">3 </span>
-                  <span>{t("Order.Items and shipping")}</span>
+                  <span>{t("Order.Delivery Option")}</span>
                 </div>
                 <div className="col-span-5">
                   <p>
-                    {t("Order.Delivery date")}:{" "}
+                    {selectedDelivery.name} -{" "}
                     {getDeliveryDateInfo(deliveryDateIndex).date}
                   </p>
-                  <ul>
-                    {items.map((item, _index) => (
-                      <li key={_index}>
-                        {item.name} ({item.brand}, {item.partNumber}) x{" "}
-                        {item.quantity} ={" "}
-                        <ProductPrice
-                          price={item.price * item.quantity}
-                          plain
-                        />
-                      </li>
-                    ))}
-                  </ul>
+                  <p>
+                    {t("Order.Shipping Price")}:{" "}
+                    {shippingPrice === 0 ? (
+                      t("Order.FREE Shipping")
+                    ) : (
+                      <ProductPrice price={shippingPrice} plain />
+                    )}
+                  </p>
                 </div>
                 <div className="col-span-2">
                   <Button
                     variant={"outline"}
                     onClick={() => {
-                      setIsDeliveryDateSelected(false);
+                      setIsDeliverySelected(false);
                     }}
                   >
                     {t("All.Change")}
@@ -601,25 +610,15 @@ const CheckoutForm = () => {
               <>
                 <div className="flex text-primary text-lg font-bold my-2">
                   <span className="w-8">3 </span>
-                  <span>{t("Order.Review items and shipping")} </span>
+                  <span>{t("Order.Choose Delivery Option")}</span>
                 </div>
                 <Card className="md:ml-8">
                   <CardContent className="p-4">
                     <p className="mb-2">
                       <span className="text-lg font-bold text-green-700">
-                        {t("Order.Arriving")}{" "}
-                        {getDeliveryDateInfo(deliveryDateIndex).isValid
-                          ? getDeliveryDateInfo(deliveryDateIndex).date
-                          : t("Order.Please select a delivery option")}
+                        {t("Order.Expected delivery")}{" "}
+                        {getDeliveryDateInfo(deliveryDateIndex).date}
                       </span>{" "}
-                      {getDeliveryDateInfo(deliveryDateIndex).isValid &&
-                        t("Order.If you order within the next")}{" "}
-                      {getDeliveryDateInfo(deliveryDateIndex).isValid &&
-                        timeUntilMidnight().hours}{" "}
-                      {t("Order.hours and")}{" "}
-                      {getDeliveryDateInfo(deliveryDateIndex).isValid &&
-                        timeUntilMidnight().minutes}{" "}
-                      {t("Order.minutes")}
                     </p>
                     <div className="grid md:grid-cols-2 gap-6">
                       <div>
@@ -694,115 +693,142 @@ const CheckoutForm = () => {
                             {t("Order.Choose a shipping speed")}
                           </p>
 
-                          <ul>
-                            <RadioGroup
-                              value={
-                                deliveryDateIndex !== undefined
-                                  ? availableDeliveryDates[deliveryDateIndex]
-                                      .name
-                                  : setting.defaultDeliveryDate || ""
+                          <RadioGroup
+                            value={selectedDelivery?.name || ""}
+                            onValueChange={(value) => {
+                              const selected = availableDeliveryDates.find(
+                                (dd) => dd.name === value
+                              );
+                              if (selected) {
+                                const index =
+                                  availableDeliveryDates.indexOf(selected);
+                                setDeliveryDateIndex(index);
+                                setSelectedDelivery(selected);
+                                const newShippingPrice =
+                                  itemsPrice >= selected.freeShippingMinPrice
+                                    ? 0
+                                    : selected.shippingPrice;
+                                setShippingPrice(newShippingPrice);
                               }
-                              onValueChange={(value) => {
-                                const index = availableDeliveryDates.findIndex(
-                                  (date) => date.name === value
-                                );
-                                if (index !== -1) {
-                                  const deliveryInfo =
-                                    getDeliveryDateInfo(index);
-                                  setDeliveryDateIndex(
-                                    index,
-                                    deliveryInfo.shippingCost
-                                  );
-                                  setIsDeliveryDateSelected(true);
-                                }
-                              }}
-                            >
-                              {availableDeliveryDates.map((dd) => {
-                                const deliveryInfo = getDeliveryDateInfo(
-                                  availableDeliveryDates.findIndex(
-                                    (date) => date.name === dd.name
-                                  )
-                                );
-                                return (
-                                  <div
-                                    key={dd.name}
-                                    className="flex items-center py-2"
+                            }}
+                          >
+                            {availableDeliveryDates.map((dd) => {
+                              const deliveryInfo = getDeliveryDateInfo(
+                                availableDeliveryDates.indexOf(dd)
+                              );
+                              return (
+                                <div
+                                  key={dd.name}
+                                  className="flex items-center py-2"
+                                >
+                                  <RadioGroupItem
+                                    value={dd.name}
+                                    id={`delivery-${dd.name}`}
+                                  />
+                                  <Label
+                                    className="pl-2 space-y-2 cursor-pointer"
+                                    htmlFor={`delivery-${dd.name}`}
                                   >
-                                    <RadioGroupItem
-                                      value={dd.name}
-                                      id={`delivery-${dd.name}`}
-                                    />
-                                    <Label
-                                      className="pl-2 space-y-2 cursor-pointer"
-                                      htmlFor={`delivery-${dd.name}`}
-                                    >
-                                      <div className="text-green-700 font-semibold">
-                                        {dd.name} (
-                                        {deliveryInfo.shippingCost === 0
-                                          ? t("Order.FREE Shipping")
-                                          : t("Product.Price") +
-                                            ": " +
-                                            (
-                                              <ProductPrice
-                                                price={
-                                                  deliveryInfo.shippingCost
-                                                }
-                                                plain
-                                              />
-                                            )}
-                                        )
-                                      </div>
-                                      <div>{deliveryInfo.date}</div>
-                                    </Label>
-                                  </div>
-                                );
-                              })}
-                            </RadioGroup>
-                          </ul>
+                                    <div className="text-green-700 font-semibold">
+                                      {dd.name} (
+                                      {deliveryInfo.shippingCost === 0 ? (
+                                        t("Order.FREE Shipping")
+                                      ) : (
+                                        <ProductPrice
+                                          price={deliveryInfo.shippingCost}
+                                          plain
+                                        />
+                                      )}
+                                      )
+                                    </div>
+                                    <div>{deliveryInfo.date}</div>
+                                  </Label>
+                                </div>
+                              );
+                            })}
+                          </RadioGroup>
                         </div>
                       </div>
                     </div>
                   </CardContent>
+                  <CardFooter className="p-4">
+                    <Button
+                      onClick={handleSelectShippingMethod}
+                      className="rounded-full font-bold"
+                      disabled={!selectedDelivery}
+                    >
+                      {t("All.Continue")}
+                    </Button>
+                  </CardFooter>
                 </Card>
               </>
             ) : (
               <div className="flex text-muted-foreground text-lg font-bold my-4 py-3">
                 <span className="w-8">3 </span>
-                <span>{t("Order.Items and shipping")} </span>
+                <span>{t("Order.Choose Delivery Option")}</span>
               </div>
             )}
           </div>
 
-          {isPaymentMethodSelected && isAddressSelected && (
-            <div className="mt-6">
-              <div className="block md:hidden">
-                <CheckoutSummary />
+          {/* Order Resume */}
+          {isDeliverySelected &&
+            isPaymentMethodSelected &&
+            isAddressSelected && (
+              <div className="mt-6">
+                <div className="flex text-primary text-lg font-bold my-2">
+                  <span className="w-8">4 </span>
+                  <span>{t("Order.Order Summary")}</span>
+                </div>
+                <Card className="md:ml-8">
+                  <CardContent className="p-4">
+                    <div className="space-y-4">
+                      <div>
+                        <h3 className="font-bold">{t("Order.Items")}</h3>
+                        <ul>
+                          {items.map((item, _index) => (
+                            <li key={_index}>
+                              {item.name} ({item.brand}, {item.partNumber}) x{" "}
+                              {item.quantity} ={" "}
+                              <ProductPrice
+                                price={item.price * item.quantity}
+                                plain
+                              />
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      <div>
+                        <h3 className="font-bold">{t("Order.Delivery")}</h3>
+                        <p>{selectedDelivery.name}</p>
+                        <p>{getDeliveryDateInfo(deliveryDateIndex).date}</p>
+                        <p>
+                          {t("Order.Shipping Price")}:{" "}
+                          {shippingPrice === 0 ? (
+                            t("Order.FREE Shipping")
+                          ) : (
+                            <ProductPrice price={shippingPrice} plain />
+                          )}
+                        </p>
+                      </div>
+                      <div>
+                        <h3 className="font-bold">{t("Order.Total")}</h3>
+                        <p>
+                          <ProductPrice price={localTotalPrice} plain />
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                  <CardFooter className="p-4">
+                    <Button
+                      onClick={handlePlaceOrder}
+                      className="rounded-full font-bold w-full"
+                    >
+                      {t("Order.Place Order")}
+                    </Button>
+                  </CardFooter>
+                </Card>
               </div>
-
-              <Card className="hidden md:block">
-                <CardContent className="p-4 flex flex-col md:flex-row justify-between items-center gap-3">
-                  <Button
-                    onClick={handlePlaceOrder}
-                    className="rounded-full"
-                    disabled={deliveryDateIndex === undefined}
-                  >
-                    {t("Order.Place Order")}
-                  </Button>
-                  <div className="flex-1">
-                    <p className="font-bold text-lg">
-                      {t("Order.Order Total")} :{" "}
-                      <ProductPrice price={totalPrice} plain />
-                    </p>
-                    <p className="text-xs">
-                      <Link href="/page/privacy-policy">
-                        {t("Order.Checkout Note3")}
-                      </Link>
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          )}
+            )}
           <CheckoutFooter />
         </div>
         <div className="hidden md:block">

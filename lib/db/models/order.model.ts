@@ -64,11 +64,15 @@ const orderSchema = new Schema<IOrder>(
       province: { type: String, required: true },
       phone: { type: String, required: true },
     },
-    expectedDeliveryDate: { type: Date, required: true },
     paymentMethod: { type: String, required: true },
     paymentResult: { id: String, status: String, email_address: String },
     itemsPrice: { type: Number, required: true },
-    shippingPrice: { type: Number, required: true },
+    shippingMethod: {
+      name: { type: String },
+      daysToDeliver: { type: Number },
+      shippingPrice: { type: Number },
+      freeShippingMinPrice: { type: Number },
+    },
     taxPrice: { type: Number, required: true },
     totalPrice: { type: Number, required: true },
     status: { type: String, default: "Processing" },
@@ -76,7 +80,6 @@ const orderSchema = new Schema<IOrder>(
     paidAt: { type: Date },
     isDelivered: { type: Boolean, required: true, default: false },
     deliveredAt: { type: Date },
-    clientOrder: { type: Schema.Types.ObjectId, ref: "ClientOrder" }, // Reference to client order
     createdAt: { type: Date, default: Date.now },
   },
   {

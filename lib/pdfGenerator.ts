@@ -35,6 +35,7 @@ export const generateBillPDF = async (order: IOrder) => {
 % Header with logo
 \\begin{center}
   \\includegraphics[width=0.3\\textwidth]{logo.png} \\\\
+  \\vspace{0.5cm}
   \\textbf{\\Large Pyasti - Facture de Commande} \\\\
   \\vspace{0.5cm}
 \\end{center}
@@ -44,7 +45,7 @@ export const generateBillPDF = async (order: IOrder) => {
 \\begin{tabular}{ll}
   \\textbf{Numéro de commande} & ${escapeLatex(order._id.toString())} \\\\
   \\textbf{Date de commande} & ${format(order.createdAt, "d MMM yyyy", { locale: fr })} \\\\
-  \\textbf{Date de livraison prévue} & ${format(order.expectedDeliveryDate, "d MMM yyyy", { locale: fr })} \\\\
+  \\textbf{Livraison prévue dans} & ${order.shippingMethod.daysToDeliver} jours \\\\
   \\textbf{Méthode de paiement} & ${escapeLatex(order.paymentMethod)} \\\\
   \\textbf{Statut du paiement} & ${order.isPaid ? "Payé" : "Non payé"} \\\\
   \\textbf{Statut de livraison} & ${order.isDelivered ? "Livré" : "Non livré"} \\\\
@@ -72,7 +73,7 @@ export const generateBillPDF = async (order: IOrder) => {
 \\section*{Résumé des Coûts}
 \\begin{tabular}{lr}
   \\textbf{Prix des articles} & ${order.itemsPrice.toFixed(2)} DZD \\\\
-  \\textbf{Frais de livraison} & ${order.shippingPrice.toFixed(2)} DZD \\\\
+  \\textbf{Frais de livraison} & ${order.shippingMethod.shippingPrice.toFixed(2)} DZD \\\\
   \\textbf{Taxe} & ${order.taxPrice.toFixed(2)} DZD \\\\
   \\textbf{Total} & ${order.totalPrice.toFixed(2)} DZD \\\\
 \\end{tabular}

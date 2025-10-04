@@ -59,6 +59,7 @@ const productSchema = new Schema<IProduct>(
     },
     tags: { type: [String], default: ["new arrival"] },
     colors: { type: [String], required: true, default: [] },
+    sizes: { type: [String], required: true, default: [] },
     vehicleCompatibility: [
       {
         make: { type: String, trim: true },

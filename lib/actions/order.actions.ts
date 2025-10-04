@@ -54,21 +54,6 @@ export const createOrder = async (clientSideCart: Cart) => {
       })
     );
 
-    // Calculate total prices for the entire order
-    const totalCart = {
-      ...clientSideCart,
-      items: itemsWithSeller,
-      ...(await calcDeliveryDateAndPrice({
-        items: itemsWithSeller,
-        shippingAddress: clientSideCart.shippingAddress,
-        deliveryDateIndex: clientSideCart.deliveryDateIndex,
-      })),
-    };
-
-    // Ensure expectedDeliveryDate is properly set
-    const expectedDeliveryDate =
-      clientSideCart.expectedDeliveryDate || new Date();
-
     // Group items by seller for orders
     const itemsBySeller: Record<string, OrderItem[]> = {};
     for (const item of itemsWithSeller) {
@@ -79,30 +64,32 @@ export const createOrder = async (clientSideCart: Cart) => {
       itemsBySeller[sellerId].push(item);
     }
 
+    const overallTaxRate =
+      clientSideCart.itemsPrice > 0
+        ? clientSideCart.taxPrice / clientSideCart.itemsPrice
+        : 0;
+
     // Create separate orders for each seller
     const sellerOrders = await Promise.all(
       Object.entries(itemsBySeller).map(async ([sellerId, items]) => {
-        const cartForSeller = {
-          ...clientSideCart,
-          items,
-          ...(await calcDeliveryDateAndPrice({
-            items,
-            shippingAddress: clientSideCart.shippingAddress,
-            deliveryDateIndex: clientSideCart.deliveryDateIndex,
-          })),
-        };
+        const itemsPrice = items.reduce(
+          (acc, item) => acc + item.price * item.quantity,
+          0
+        );
+        const shippingPrice = clientSideCart.shippingMethod.shippingPrice;
+        const taxPrice = itemsPrice * overallTaxRate;
+        const totalPrice = itemsPrice + taxPrice + shippingPrice;
 
         const orderData = OrderInputSchema.parse({
           user: session.user.id!,
           seller: sellerId,
           items: items,
-          shippingAddress: cartForSeller.shippingAddress,
-          paymentMethod: cartForSeller.paymentMethod,
-          itemsPrice: cartForSeller.itemsPrice,
-          shippingPrice: cartForSeller.shippingPrice,
-          taxPrice: cartForSeller.taxPrice,
-          totalPrice: cartForSeller.totalPrice,
-          expectedDeliveryDate: cartForSeller.expectedDeliveryDate,
+          shippingAddress: clientSideCart.shippingAddress,
+          paymentMethod: clientSideCart.paymentMethod,
+          itemsPrice,
+          shippingMethod: clientSideCart.shippingMethod,
+          taxPrice,
+          totalPrice,
         });
 
         const order = await Order.create(orderData);
@@ -158,11 +145,6 @@ export const createOrder = async (clientSideCart: Cart) => {
       language: "fr",
     });
 
-    console.log("🔍 [DEBUG] Returning success response:", {
-      orderId: primaryOrder._id.toString(),
-      message: "Order placed successfully",
-    });
-
     return {
       success: true,
       message: "Order placed successfully",
@@ -194,12 +176,6 @@ export const createOrderFromCart = async (
   console.log(`🔍 [DEBUG] Calculated cart itemsPrice:`, cart.itemsPrice);
   console.log(`🔍 [DEBUG] Calculated cart totalPrice:`, cart.totalPrice);
 
-  // Ensure expectedDeliveryDate is a proper Date object
-  const expectedDeliveryDate =
-    cart.expectedDeliveryDate instanceof Date
-      ? cart.expectedDeliveryDate
-      : new Date();
-
   const order = OrderInputSchema.parse({
     user: userId,
     seller: sellerId,
@@ -207,10 +183,9 @@ export const createOrderFromCart = async (
     shippingAddress: cart.shippingAddress,
     paymentMethod: cart.paymentMethod,
     itemsPrice: cart.itemsPrice,
-    shippingPrice: cart.shippingPrice,
+    shippingMethod: cart.shippingMethod,
     taxPrice: cart.taxPrice,
     totalPrice: cart.totalPrice,
-    expectedDeliveryDate: expectedDeliveryDate,
   });
 
   console.log(`🔍 [DEBUG] Order to be created:`, {

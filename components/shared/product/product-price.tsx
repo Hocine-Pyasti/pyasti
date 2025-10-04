@@ -64,20 +64,20 @@ const ProductPrice = ({
         className={`flex ${forListing && "justify-center"} items-center gap-2`}
       >
         <div className={cn("text-3xl", className)}>
-          <span className="text-xs align-super">{currency.symbol}</span>
-          {intValue}
-          <span className="text-xs align-super">
-            {floatValue ? `.${floatValue}` : ""}
-          </span>
-        </div>
-        <div className="text-muted-foreground text-xs py-2">
-          {t("Product.Was")}:{" "}
-          <span className="line-through">
+          <span className="align-super">
             {format.number(convertedDiscountPrice, {
               style: "currency",
               currency: currency.code,
               currencyDisplay: "narrowSymbol",
             })}
+          </span>
+        </div>
+        <div className="text-muted-foreground text-xs py-2">
+          {t("Product.Was")}:{" "}
+          <span className="text-xs ">{currency.symbol}</span>
+          {intValue}
+          <span className="text-xs line-through">
+            {floatValue ? `.${floatValue}` : ""}
           </span>
         </div>
       </div>

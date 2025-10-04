@@ -53,10 +53,12 @@ const ProductCard = ({
   );
   const ProductDetails = () => (
     <div className="flex-1 space-y-2">
-      <p className="font-bold">{product.brand}</p>
+      <p>
+        Marque: <span className="font-bold"> {product.brand}</span>
+      </p>
       <Link
         href={`/product/${product.slug}`}
-        className="overflow-hidden text-ellipsis"
+        className="overflow-hidden text-ellipsis font-bold text-lg lg:text-xl"
         style={{
           display: "-webkit-box",
           WebkitLineClamp: 2,
@@ -65,9 +67,21 @@ const ProductCard = ({
       >
         {product.name}
       </Link>
-      <div className="flex gap-2 justify-center">
+      <div
+        className="flex gap-2 items-center absolute left-7 top-6"
+        style={{
+          transform: "rotate(90deg)",
+          transformOrigin: "top left",
+        }}
+      >
         <Rating rating={product.avgRating} />
-        <span>({formatNumber(product.numReviews)})</span>
+        <span
+          style={{
+            transform: "rotate(-90deg)",
+          }}
+        >
+          ({formatNumber(product.numReviews)})
+        </span>
       </div>
 
       <ProductPrice
@@ -76,6 +90,7 @@ const ProductCard = ({
         discountPrice={product.discountPrice}
         forListing
       />
+      <div className="text-center text-sm"> Ref: {product.partNumber}</div>
     </div>
   );
   const AddButton = () => (
@@ -90,7 +105,7 @@ const ProductCard = ({
           countInStock: product.countInStock,
           name: product.name,
           slug: product.slug,
-          subCategory: product.subCategory,
+          subCategory: product.subCategory.toString(),
           price: round2(product.price),
           quantity: 1,
           image: product.images[0],
@@ -112,8 +127,8 @@ const ProductCard = ({
       )}
     </div>
   ) : (
-    <Card className="pt-4 flex flex-col mb-2 ">
-      <div className="absolute top-[-10px]  self-center z-10 bg-gray-300/50 rounded-md shadow backdrop-blur-md">
+    <Card className="pt-4 flex flex-col mb-2 border-t-2 border-t-blue-700 hover:shadow-lg hover:shadow-blue-400 transition-shadow relative">
+      <div className="absolute top-[-10px] self-center z-10 bg-blue-700 text-white rounded-md shadow backdrop-blur-md">
         <DisplayUserData userId={product.seller.toString()} showName />
       </div>
       <CardHeader className="p-0">

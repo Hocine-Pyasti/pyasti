@@ -3,7 +3,6 @@ import {
   CartSchema,
   DeliveryDateSchema,
   OrderInputSchema,
-  ClientOrderInputSchema,
   OrderItemSchema,
   PaymentMethodSchema,
   MainCategoryInputSchema,
@@ -51,6 +50,7 @@ export interface IProductInput {
   countInStock: number;
   tags: string[];
   colors: string[];
+  sizes: string[];
   vehicleCompatibility?: {
     make: string;
     model: string;
@@ -103,15 +103,7 @@ export type IOrderList = IOrderInput & {
 };
 
 // Client Order
-export type IClientOrderInput = z.infer<typeof ClientOrderInputSchema>;
-export type IClientOrderList = IClientOrderInput & {
-  _id: string;
-  user: {
-    name: string;
-    email: string;
-  };
-  createdAt: Date;
-};
+
 export type OrderItem = z.infer<typeof OrderItemSchema>;
 export type Cart = z.infer<typeof CartSchema>;
 export type ShippingAddress = z.infer<typeof ShippingAddressSchema>;

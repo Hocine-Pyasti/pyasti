@@ -12,7 +12,6 @@ import {
   createPayPalOrder,
 } from "@/lib/actions/order.actions";
 import { IOrder } from "@/lib/db/models/order.model";
-import { formatDateTime } from "@/lib/utils";
 
 import CheckoutFooter from "../checkout-footer";
 import { redirect, useRouter } from "next/navigation";
@@ -41,10 +40,9 @@ export default function OrderDetailsForm({
     items,
     itemsPrice,
     taxPrice,
-    shippingPrice,
+    shippingMethod,
     totalPrice,
     paymentMethod,
-    expectedDeliveryDate,
     isPaid,
   } = order;
   const { toast } = useToast();
@@ -95,12 +93,12 @@ export default function OrderDetailsForm({
             <div className="flex justify-between">
               <span>Shipping & Handling:</span>
               <span>
-                {shippingPrice === undefined ? (
+                {shippingMethod.shippingPrice === undefined ? (
                   "--"
-                ) : shippingPrice === 0 ? (
+                ) : shippingMethod.shippingPrice === 0 ? (
                   "FREE"
                 ) : (
-                  <ProductPrice price={shippingPrice} plain />
+                  <ProductPrice price={shippingMethod.shippingPrice} plain />
                 )}
               </span>
             </div>
@@ -198,10 +196,7 @@ export default function OrderDetailsForm({
               <span>Items and shipping</span>
             </div>
             <div className="col-span-2">
-              <p>
-                Delivery date:
-                {formatDateTime(expectedDeliveryDate).dateOnly}
-              </p>
+              <p>Delivery date: {shippingMethod.name}</p>
               <ul>
                 {items.map((item) => (
                   <li key={item.slug}>

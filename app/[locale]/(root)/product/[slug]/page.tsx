@@ -69,7 +69,7 @@ export default async function ProductDetails(props: {
           <div className="flex w-full flex-col gap-2 md:p-5 col-span-2">
             <div className="flex flex-col gap-3">
               <p className="p-medium-16 rounded-full bg-grey-500/10 text-grey-500">
-                {product.subCategory.name}
+                Cat: {product.subCategory.name}
               </p>
 
               <h1 className="font-bold text-xl lg:text-2xl text-blue-500">
@@ -155,7 +155,11 @@ export default async function ProductDetails(props: {
                         name: product.name,
                         slug: product.slug,
                         subCategory: product.subCategory.toString(),
-                        price: round2(product.price),
+                        price: round2(
+                          product.discountPrice && product.discountPrice !== 0
+                            ? product.discountPrice
+                            : product.price
+                        ),
                         quantity: 1,
                         image: product?.images?.[0] || "",
                         size: size || product.sizes?.[0],
