@@ -34,14 +34,14 @@ export default function OrderDetailsForm({
     items,
     itemsPrice,
     taxPrice,
-    shippingPrice,
+    shippingMethod,
     totalPrice,
     paymentMethod,
     isPaid,
     paidAt,
     isDelivered,
     deliveredAt,
-    expectedDeliveryDate,
+    createdAt,
   } = order;
   const t = useTranslations();
   console.log({ isPrivileged });
@@ -71,18 +71,20 @@ export default function OrderDetailsForm({
               {shippingAddress.province}, {shippingAddress.postalCode},{" "}
               {shippingAddress.country}{" "}
             </p>
-
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4 gap-4">
+            <h2 className="text-xl pb-4">{t("Order.Delivery Option")} </h2>
+            <p>{shippingMethod.name}</p>
             {isDelivered ? (
-              <Badge>
-                Delivered at {formatDateTime(deliveredAt!).dateTime}
-              </Badge>
+              <Badge>Livré le {formatDateTime(deliveredAt!).dateTime}</Badge>
             ) : (
               <div>
                 {" "}
-                <Badge variant="destructive">Not delivered</Badge>
+                <Badge variant="destructive">Non livré</Badge>
                 <div>
-                  Expected delivery at{" "}
-                  {formatDateTime(expectedDeliveryDate!).dateTime}
+                  Commande créée le {formatDateTime(createdAt).dateTime}
                 </div>
               </div>
             )}
@@ -93,21 +95,21 @@ export default function OrderDetailsForm({
             <h2 className="text-xl pb-4">{t("Order.Payment Method")} </h2>
             <p>{paymentMethod}</p>
             {isPaid ? (
-              <Badge>Paid at {formatDateTime(paidAt!).dateTime}</Badge>
+              <Badge>Payé le {formatDateTime(paidAt!).dateTime}</Badge>
             ) : (
-              <Badge variant="destructive">Not paid</Badge>
+              <Badge variant="destructive">Non Payé</Badge>
             )}
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="p-4   gap-4">
+          <CardContent className="p-4 gap-4">
             <h2 className="text-xl pb-4">{t("Order.Order Items")} </h2>
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Item</TableHead>
-                  <TableHead>Quantity</TableHead>
-                  <TableHead>Price</TableHead>
+                  <TableHead>{t("Order.Items")}</TableHead>
+                  <TableHead>{t("Order.Quantity")}</TableHead>
+                  <TableHead>{t("Order.Price")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -139,32 +141,32 @@ export default function OrderDetailsForm({
         </Card>
       </div>
       <div>
-        <Card>
-          <CardContent className="p-4  space-y-4 gap-4">
+        <Card className="mt-4">
+          <CardContent className="p-4 space-y-4 gap-4">
             <h2 className="text-xl pb-4">{t("Order.Order Summary")} </h2>
             <div className="flex justify-between">
-              <div>Items</div>
+              <div>{t("Order.Items")}</div>
               <div>
                 {" "}
                 <ProductPrice price={itemsPrice} plain />
               </div>
             </div>
             <div className="flex justify-between">
-              <div>Tax</div>
+              <div>{t("Order.Tax")}</div>
               <div>
                 {" "}
                 <ProductPrice price={taxPrice} plain />
               </div>
             </div>
             <div className="flex justify-between">
-              <div>Shipping</div>
+              <div>{t("Order.Shipping & Handling")}</div>
               <div>
                 {" "}
-                <ProductPrice price={shippingPrice} plain />
+                <ProductPrice price={shippingMethod.shippingPrice} plain />
               </div>
             </div>
             <div className="flex justify-between">
-              <div>Total</div>
+              <div>{t("Order.Order Total")}</div>
               <div>
                 {" "}
                 <ProductPrice price={totalPrice} plain />

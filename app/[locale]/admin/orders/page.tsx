@@ -61,9 +61,9 @@ export default async function OrdersPage(props: {
             {orders.data.map((order: IOrderList) => {
               let rowClass = "";
               if (order.isPaid && !order.isDelivered) {
-                rowClass = "bg-blue-200";
+                rowClass = "bg-blue-500";
               } else if (order.isPaid && order.isDelivered) {
-                rowClass = "bg-green-200";
+                rowClass = "bg-green-500";
               }
               return (
                 <TableRow key={order._id} className={rowClass}>
@@ -90,9 +90,9 @@ export default async function OrdersPage(props: {
                   <TableCell
                     className={
                       order.status === "Processing"
-                        ? "bg-amber-400"
+                        ? "bg-amber-500"
                         : order.status === "Completed"
-                          ? "bg-green-400"
+                          ? "bg-green-500"
                           : order.status === "Cancelled"
                             ? "bg-amber-800 text-white"
                             : ""

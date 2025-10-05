@@ -121,6 +121,8 @@ export const createOrder = async (clientSideCart: Cart) => {
       order: primaryOrder,
       email: session.user.email!,
       language: userLanguage,
+      subject: "Nouvelle commande",
+      description: "Votre commande a été passée avec succès!",
     });
 
     // Send purchase receipts to each seller for their specific orders
@@ -132,6 +134,9 @@ export const createOrder = async (clientSideCart: Cart) => {
             order: sellerOrder,
             email: seller.email,
             language: seller?.language || "fr",
+            subject: "Nouvelle commande",
+            description:
+              "Vous avez reçu une nouvelle commande, veuillez vous rendre sur votre tableau de bord pour livrer la commande au client le plus rapidement possible. ",
           });
         }
       })
@@ -143,6 +148,8 @@ export const createOrder = async (clientSideCart: Cart) => {
       order: primaryOrder,
       email: ADMIN_EMAIL,
       language: "fr",
+      subject: "Nouvelle commande",
+      description: "Une nouvelle commande a été passée avec succès",
     });
 
     return {
@@ -233,6 +240,7 @@ export async function updateOrderToPaid(orderId: string) {
         order,
         email: order.user.email,
         language: order.user.language || "fr",
+        subject: "Confirmation de paiement",
         description: "Paiement confirmé ✅. Merci pour votre achat !",
       });
     revalidatePath(`/account/orders/${orderId}`);
@@ -293,25 +301,28 @@ export async function deliverOrder(orderId: string) {
     const seller = await User.findById(order.seller);
     const { ADMIN_EMAIL } = await import("../constants");
     await Promise.all([
-      sendOrderStatusEmail({
+      sendPurchaseReceipt({
         order,
         email: order.user.email,
-        status: "delivered",
-        language: order.user.language || "fr",
+        language: "fr",
+        subject: "Confirmation de livraison",
+        description: "Votre commande a été livrée avec succès 🚚✅",
       }),
       seller && seller.email
-        ? sendOrderStatusEmail({
+        ? sendPurchaseReceipt({
             order,
             email: seller.email,
-            status: "delivered",
             language: seller.language || "fr",
+            subject: "Confirmation de livraison",
+            description: "Votre commande a été livrée avec succès 🚚✅",
           })
         : null,
-      sendOrderStatusEmail({
+      sendPurchaseReceipt({
         order,
         email: ADMIN_EMAIL,
-        status: "delivered",
         language: "fr",
+        subject: "Confirmation de livraison",
+        description: "La commande a été livrée avec succès 🚚✅",
       }),
     ]);
     revalidatePath(`/account/orders/${orderId}`);

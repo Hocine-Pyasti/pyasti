@@ -20,6 +20,7 @@ import ProductPrice from "@/components/shared/product/product-price";
 import StripeForm from "./stripe-form";
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
+import { useTranslations } from "next-intl";
 
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY as string
@@ -34,6 +35,7 @@ export default function OrderDetailsForm({
   isAdmin: boolean;
   clientSecret: string | null;
 }) {
+  const t = useTranslations();
   const router = useRouter();
   const {
     shippingAddress,
@@ -81,17 +83,17 @@ export default function OrderDetailsForm({
     <Card>
       <CardContent className="p-4">
         <div>
-          <div className="text-lg font-bold">Order Summary</div>
+          <div className="text-lg font-bold">{t("Order.Order Summary")} </div>
           <div className="space-y-2">
             <div className="flex justify-between">
-              <span>Items:</span>
+              <span>{t("Order.Items")}:</span>
               <span>
                 {" "}
                 <ProductPrice price={itemsPrice} plain />
               </span>
             </div>
             <div className="flex justify-between">
-              <span>Shipping & Handling:</span>
+              <span> {t("Order.Shipping & Handling")}</span>
               <span>
                 {shippingMethod.shippingPrice === undefined ? (
                   "--"
@@ -103,7 +105,7 @@ export default function OrderDetailsForm({
               </span>
             </div>
             <div className="flex justify-between">
-              <span> Tax:</span>
+              <span> {t("Order.Tax")}:</span>
               <span>
                 {taxPrice === undefined ? (
                   "--"
@@ -113,7 +115,7 @@ export default function OrderDetailsForm({
               </span>
             </div>
             <div className="flex justify-between  pt-1 font-bold text-lg">
-              <span> Order Total:</span>
+              <span>{t("Order.Order Total")}:</span>
               <span>
                 {" "}
                 <ProductPrice price={totalPrice} plain />
@@ -150,7 +152,7 @@ export default function OrderDetailsForm({
                 className="w-full rounded-full"
                 onClick={() => router.push(`/account/orders/${order._id}`)}
               >
-                View Order
+                {t("Order.View Order")}
               </Button>
             )}
           </div>
@@ -167,7 +169,7 @@ export default function OrderDetailsForm({
           <div>
             <div className="grid md:grid-cols-3 my-3 pb-3">
               <div className="text-lg font-bold">
-                <span>Shipping Address</span>
+                <span>{t("Order.Shipping Address")}</span>
               </div>
               <div className="col-span-2">
                 <p>
@@ -183,7 +185,7 @@ export default function OrderDetailsForm({
           <div className="border-y">
             <div className="grid md:grid-cols-3 my-3 pb-3">
               <div className="text-lg font-bold">
-                <span>Payment Method</span>
+                <span>{t("Order.Payment Method")}</span>
               </div>
               <div className="col-span-2">
                 <p>{paymentMethod}</p>
@@ -193,7 +195,7 @@ export default function OrderDetailsForm({
 
           <div className="grid md:grid-cols-3 my-3 pb-3">
             <div className="flex text-lg font-bold">
-              <span>Items and shipping</span>
+              <span>{t("Order.Items and shipping")}</span>
             </div>
             <div className="col-span-2">
               <p>Delivery date: {shippingMethod.name}</p>

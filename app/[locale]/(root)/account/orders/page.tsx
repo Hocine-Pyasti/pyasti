@@ -59,9 +59,9 @@ export default async function OrdersPage(props: {
             {orders.data.map((order: IOrder) => {
               let rowClass = "";
               if (order.isPaid && !order.isDelivered) {
-                rowClass = "bg-blue-200";
+                rowClass = "bg-blue-500";
               } else if (order.isPaid && order.isDelivered) {
-                rowClass = "bg-green-200";
+                rowClass = "bg-green-500";
               }
 
               return (

@@ -10,17 +10,20 @@ export const sendPurchaseReceipt = async ({
   order,
   email,
   language = "fr",
+  subject,
   description,
 }: {
   order: IOrder;
   email: string;
   language?: string;
+  subject: string;
   description: string;
 }) => {
   return await sendPurchaseReceiptNodemailer({
     order,
     email,
     language,
+    subject,
     description,
   });
 };
@@ -113,7 +116,7 @@ export const sendOrderStatusEmail = async ({
   const lang = (["fr", "en"].includes(language) ? language : "fr") as
     | "fr"
     | "en";
-  const subject = EMAIL_TEMPLATES[status][lang].subject;
+  const subject = subject;
   const text = EMAIL_TEMPLATES[status][lang].body(order._id);
   const html = `<p>${text}</p>`;
 

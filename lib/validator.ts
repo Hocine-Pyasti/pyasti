@@ -213,6 +213,8 @@ export const CartSchema = z.object({
       freeShippingMinPrice: z.number(),
     })
   ),
+  brand: z.string(),
+  partNumber: z.string(),
   totalPrice: z.number(),
   paymentMethod: z.optional(z.string()),
   shippingAddress: z.optional(ShippingAddressSchema),

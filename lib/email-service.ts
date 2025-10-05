@@ -213,6 +213,7 @@ export const sendPurchaseReceipt = async ({
   order,
   email,
   language = "fr",
+  subject,
   description,
 }: {
   order: {
@@ -223,6 +224,7 @@ export const sendPurchaseReceipt = async ({
   };
   email: string;
   language?: string;
+  subject: string;
   description: string;
 }) => {
   console.log("🛒 [DEBUG] Starting purchase receipt email...");
@@ -233,15 +235,11 @@ export const sendPurchaseReceipt = async ({
   console.log("🛒 [DEBUG] Total price:", order.totalPrice);
 
   try {
-    const subject =
-      language === "fr" ? "Confirmation de commande" : "Order Confirmation";
-
-    console.log("🛒 [DEBUG] Generated subject:", subject);
-
     // Convert React email component to HTML string
     const html = await generatePurchaseReceiptHTML(
       order,
       language,
+      subject,
       description
     );
     console.log("🛒 [DEBUG] Generated HTML length:", html.length);
@@ -410,10 +408,10 @@ async function generatePurchaseReceiptHTML(
     createdAt: string | Date;
   },
   language: string,
+  subject: string,
   description: string
 ) {
   console.log("🔧 [DEBUG] Generating purchase receipt HTML...");
-  console.log("🔧 [DEBUG] Processing", order.items.length, "items");
 
   // This is a simplified version - you might want to create a proper HTML template
   const items = order.items
@@ -429,15 +427,18 @@ async function generatePurchaseReceiptHTML(
 
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-      <h2 style="color: #333;">${language === "fr" ? "Confirmation de commande" : "Order Confirmation"}</h2>
-      <p><strong>Order ID:</strong> ${order._id}</p>
-      <p><strong>Date:</strong> ${new Date(order.createdAt).toLocaleDateString()}</p>
+      <h2 style="color: #333;">${subject}</h2>
+      <div style="margin-top: 30px;"> 
+          <p>${description}</p>  
+      </div>
+      <p><strong>ID:</strong> ${order._id}</p>
+      <p><strong>Commande créée le:</strong> ${new Date(order.createdAt).toLocaleDateString("fr-FR")}</p>
       
       <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
         <thead>
           <tr style="background-color: #f8f9fa;">
-            <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Item</th>
-            <th style="padding: 10px; text-align: right; border: 1px solid #ddd;">Price</th>
+            <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Articles</th>
+            <th style="padding: 10px; text-align: right; border: 1px solid #ddd;">Prix</th>
           </tr>
         </thead>
         <tbody>
@@ -449,9 +450,7 @@ async function generatePurchaseReceiptHTML(
       <div style="text-align: right; margin-top: 20px;">
         <p><strong>Total:</strong> ${order.totalPrice} DA</p>
       </div>
-      <div style="margin-top: 30px;"> 
-             ${description}
-      </div>
+      
       <p>Merci d'avoir choisi PYASTI</p>
       <p>Visiter note site web</p>
       <div style="text-align: center; margin: 30px 0;">

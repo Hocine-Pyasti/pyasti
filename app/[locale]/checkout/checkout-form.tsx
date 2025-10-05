@@ -300,7 +300,7 @@ const CheckoutForm = () => {
             <div className="flex justify-between">
               <span>{t("Order.Tax")}</span>
               <span>
-                <ProductPrice price={taxPrice} plain />
+                <ProductPrice price={taxPrice || 0} plain />
               </span>
             </div>
             <div className="flex justify-between pt-4 font-bold text-lg">
@@ -731,11 +731,11 @@ const CheckoutForm = () => {
                                   >
                                     <div className="text-green-700 font-semibold">
                                       {dd.name} (
-                                      {deliveryInfo.shippingCost === 0 ? (
+                                      {dd.shippingPrice === 0 ? (
                                         t("Order.FREE Shipping")
                                       ) : (
                                         <ProductPrice
-                                          price={deliveryInfo.shippingCost}
+                                          price={dd.shippingPrice}
                                           plain
                                         />
                                       )}
