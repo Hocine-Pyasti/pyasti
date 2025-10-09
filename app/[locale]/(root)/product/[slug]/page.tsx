@@ -247,8 +247,8 @@ export default async function ProductDetails(props: {
                 showAddress
                 bannerImageStyle="w-20 h-20 rounded-full"
                 nameStyle="font-bold text-xl"
-                addresspeStyle="ml-1 p-1"
-                shoTypeStyle="bg-green-200 px-2 rounded-lg text-green-800"
+                shopDataStyle="px-2"
+                divStyles="flex px-2"
               />
             </div>
             <Link href={`/seller-shop/${product.seller}`}>

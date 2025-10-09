@@ -16,8 +16,8 @@ interface UserData {
   role?: string;
   bannerImageStyle?: string;
   nameStyle?: string;
-  addresspeStyle?: string;
-  shoTypeStyle?: string;
+  shopDataStyle?: string;
+  divStyles?: string;
 }
 
 interface DisplayUserDataProps {
@@ -31,8 +31,8 @@ interface DisplayUserDataProps {
   showRole?: boolean;
   bannerImageStyle?: string;
   nameStyle?: string;
-  addresspeStyle?: string;
-  shoTypeStyle?: string;
+  shopDataStyle?: string;
+  divStyles?: string;
 }
 
 export default function DisplayUserData({
@@ -46,8 +46,8 @@ export default function DisplayUserData({
   showRole = false,
   bannerImageStyle,
   nameStyle,
-  addresspeStyle,
-  shoTypeStyle,
+  shopDataStyle,
+  divStyles,
 }: DisplayUserDataProps) {
   const t = useTranslations();
   const [userData, setUserData] = useState<UserData | null>(null);
@@ -95,7 +95,7 @@ export default function DisplayUserData({
   }
   return (
     <div className="box-shadow-md px-2 rounded-md space-y-2 text-sm">
-      <div className="flex px-2">
+      <div className={divStyles}>
         {showBannerImage && userData.bannerImage && (
           <Image
             src={userData.bannerImage || "/public/avatars/shop4.jpg"}
@@ -109,31 +109,35 @@ export default function DisplayUserData({
           {showName && userData.shopName && (
             <p className={nameStyle}>{userData.shopName}</p>
           )}
-          {showPhoneNumber && userData.shopPhone && <p>{userData.shopPhone}</p>}
-          {showAddress && userData.shopAddress && (
-            <p className={addresspeStyle}>{userData.shopAddress}</p>
-          )}
-          {showShopType && userData.shopType && (
-            <p className={shoTypeStyle}>
-              {userData.shopType === "Physical Shop"
-                ? t("Auth.Physical Shop.title")
-                : userData.shopType === "Online Shop"
-                  ? t("Auth.Online Shop.title")
-                  : userData.shopType === "Physical and Online Shop"
-                    ? t("Auth.Physical and Online Shop.title")
-                    : userData.shopType === "Repair Workshop with Sales"
-                      ? t("Auth.Repair Workshop with Sales.title")
-                      : userData.shopType === "Specialized Distributor"
-                        ? t("Auth.Specialized Distributor.title")
-                        : userData.shopType === "Automotive Recycler"
-                          ? t("Auth.Automotive Recycler.title")
-                          : userData.shopType === "Custom Manufacturer"
-                            ? t("Auth.Custom Manufacturer.title")
-                            : userData.shopType === "Collection Point"
-                              ? t("Auth.Collection Point.title")
-                              : ""}
-            </p>
-          )}
+          <div className={shopDataStyle}>
+            {showPhoneNumber && userData.shopPhone && (
+              <p>{userData.shopPhone}</p>
+            )}
+            {showAddress && userData.shopAddress && (
+              <p>{userData.shopAddress}</p>
+            )}
+            {showShopType && userData.shopType && (
+              <p className="bg-green-200 px-2 rounded-lg text-green-800">
+                {userData.shopType === "Physical Shop"
+                  ? t("Auth.Physical Shop.title")
+                  : userData.shopType === "Online Shop"
+                    ? t("Auth.Online Shop.title")
+                    : userData.shopType === "Physical and Online Shop"
+                      ? t("Auth.Physical and Online Shop.title")
+                      : userData.shopType === "Repair Workshop with Sales"
+                        ? t("Auth.Repair Workshop with Sales.title")
+                        : userData.shopType === "Specialized Distributor"
+                          ? t("Auth.Specialized Distributor.title")
+                          : userData.shopType === "Automotive Recycler"
+                            ? t("Auth.Automotive Recycler.title")
+                            : userData.shopType === "Custom Manufacturer"
+                              ? t("Auth.Custom Manufacturer.title")
+                              : userData.shopType === "Collection Point"
+                                ? t("Auth.Collection Point.title")
+                                : ""}
+              </p>
+            )}
+          </div>
         </div>
       </div>
 

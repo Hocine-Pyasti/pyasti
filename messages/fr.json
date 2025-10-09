@@ -4,7 +4,7 @@
     "Enter full name": "Entrez le nom complet (par ex., Jean Dupont)",
     "Email": "Email",
     "Enter email": "Entrez l'email",
-    "Phone Number": "Numéro de téléphone",
+    "Phone Number": "Téléphone",
     "Enter phone number": "Entrez le numéro de téléphone",
     "Address": "Adresse",
     "Enter Your Address": "Entrez votre adresse",
@@ -154,7 +154,7 @@
   "Auth": {
     "Full Name": "Nom complet (Prénom et Nom)",
     "Email": "Email",
-    "Phone Number": "Numéro de téléphone",
+    "Phone Number": "Téléphone",
     "Gender": "Genre",
     "Male": "Homme",
     "Female": "Femme",
@@ -324,6 +324,7 @@
   "Search": {
     "for": "pour",
     "Search": "Rechercher",
+    "Search by name or part number": "Rechercher par nom ou numéro de pièce",
     "Results": "Résultats",
     "No results found": "Aucun résultat trouvé",
     "Search for": "Rechercher",

@@ -6,6 +6,9 @@ import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { useTranslations } from "next-intl";
 import { getAllSellersForMap } from "@/lib/actions/user.actions";
+import NextLink from "next/link";
+import { Link as LinkIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -23,7 +26,7 @@ const shopIcon = new L.Icon({
 });
 
 const MapPage = () => {
-  const t = useTranslations("All");
+  const t = useTranslations();
   const [sellers, setSellers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -84,14 +87,43 @@ const MapPage = () => {
                     {seller.shopDetails?.shopName}
                   </h3>
                   <p>
-                    {t("Phone Number")}: {seller.shopDetails?.shopPhone}
+                    {t("All.Phone Number")}: {seller.shopDetails?.shopPhone}
                   </p>
                   <p>
-                    {t("Address")}: {seller.shopDetails?.shopAddress}
+                    {t("All.Address")}: {seller.shopDetails?.shopAddress}
                   </p>
-                  <p>
-                    {t("Type")}: {seller.shopDetails?.shopType}
+
+                  <p className="bg-green-200 px-2 rounded-lg text-green-800 font-bold">
+                    {seller.shopDetails?.shopType === "Physical Shop"
+                      ? t("Auth.Physical Shop.title")
+                      : seller.shopDetails?.shopType === "Online Shop"
+                        ? t("Auth.Online Shop.title")
+                        : seller.shopDetails?.shopType ===
+                            "Physical and Online Shop"
+                          ? t("Auth.Physical and Online Shop.title")
+                          : seller.shopDetails?.shopType ===
+                              "Repair Workshop with Sales"
+                            ? t("Auth.Repair Workshop with Sales.title")
+                            : seller.shopDetails?.shopType ===
+                                "Specialized Distributor"
+                              ? t("Auth.Specialized Distributor.title")
+                              : seller.shopDetails?.shopType ===
+                                  "Automotive Recycler"
+                                ? t("Auth.Automotive Recycler.title")
+                                : seller.shopDetails?.shopType ===
+                                    "Custom Manufacturer"
+                                  ? t("Auth.Custom Manufacturer.title")
+                                  : seller.shopDetails?.shopType ===
+                                      "Collection Point"
+                                    ? t("Auth.Collection Point.title")
+                                    : ""}
                   </p>
+                  <NextLink href={`/seller-shop/${seller._id}`} passHref>
+                    <Button className="flex items-center gap-2 w-full justify-center mt-2">
+                      <LinkIcon className="w-4 h-4" />
+                      {t("Product.View Seller")}
+                    </Button>
+                  </NextLink>
                 </div>
               </Popup>
             </Marker>
