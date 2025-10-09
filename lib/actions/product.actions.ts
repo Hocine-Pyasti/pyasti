@@ -208,6 +208,71 @@ export async function getAllProductsForSeller({
   };
 }
 
+export async function getProductsBySellerId({
+  sellerId,
+  query,
+  page = 1,
+  sort = "latest",
+  limit,
+}: {
+  sellerId: string;
+  query: string;
+  page?: number;
+  sort?: string;
+  limit?: number;
+}) {
+  await connectToDatabase();
+
+  const {
+    common: { pageSize },
+  } = await getSetting();
+  limit = limit || pageSize;
+
+  const queryFilter =
+    query && query !== "all"
+      ? {
+          $or: [
+            { name: { $regex: query, $options: "i" } },
+            { partNumber: { $regex: query, $options: "i" } },
+          ],
+        }
+      : {};
+
+  const order: Record<string, 1 | -1> =
+    sort === "best-selling"
+      ? { numSales: -1 }
+      : sort === "price-low-to-high"
+        ? { price: 1 }
+        : sort === "price-high-to-low"
+          ? { price: -1 }
+          : sort === "avg-customer-review"
+            ? { avgRating: -1 }
+            : { _id: -1 };
+
+  const products = await Product.find({
+    ...queryFilter,
+    seller: sellerId,
+  })
+    .populate("subCategory", "name")
+    .sort(order)
+    .skip(limit * (Number(page) - 1))
+    .limit(limit)
+    .lean();
+
+  const countProducts = await Product.countDocuments({
+    ...queryFilter,
+    seller: sellerId,
+  });
+
+  return {
+    products: JSON.parse(JSON.stringify(products)) as IProduct[],
+    totalPages: Math.ceil(countProducts / pageSize),
+    totalProducts: countProducts,
+    from: pageSize * (Number(page) - 1) + 1,
+    to: pageSize * (Number(page) - 1) + products.length,
+  };
+}
+
 export async function getProductsForCard({
   tag,
   limit = 4,

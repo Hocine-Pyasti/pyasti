@@ -129,7 +129,7 @@ export async function updateUserProfile(
     currentUser.name = user.name;
     currentUser.phoneNumber = user.phoneNumber || currentUser.phoneNumber;
     currentUser.address = user.address || currentUser.address;
-    if (currentUser.role === "Seller") {
+    if (currentUser.role === "Seller" || currentUser.role === "Admin") {
       currentUser.shopDetails = {
         ...currentUser.shopDetails,
         shopName:
@@ -233,6 +233,33 @@ export async function getUserById(userId: string) {
   const user = await User.findById(userId);
   if (!user) throw new Error("User not found");
   return JSON.parse(JSON.stringify(user)) as IUser;
+}
+
+export async function getSellerById(userId: string) {
+  await connectToDatabase();
+  const user = await User.findOne(
+    { _id: userId, role: { $in: ["Seller", "Admin"] } },
+    {
+      name: 1,
+      email: 1,
+      image: 1,
+      profileType: 1,
+      latitude: 1,
+      longitude: 1,
+      shopDetails: 1,
+    }
+  );
+  if (!user) throw new Error("Seller not found");
+  return JSON.parse(JSON.stringify(user)) as Pick<
+    IUser,
+    | "name"
+    | "email"
+    | "image"
+    | "profileType"
+    | "latitude"
+    | "longitude"
+    | "shopDetails"
+  >;
 }
 
 export async function verifyUserCode(userId: string, code: string) {

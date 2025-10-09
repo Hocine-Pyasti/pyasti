@@ -18,6 +18,9 @@ import RatingSummary from "@/components/shared/product/rating-summary";
 import ProductSlider from "@/components/shared/product/product-slider";
 import { getTranslations } from "next-intl/server";
 import SellerOnMap from "@/components/shared/map/seller-on-map";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import DisplayUserData from "@/components/shared/display-user-data";
 
 export async function generateMetadata(props: {
   params: Promise<{ slug: string }>;
@@ -233,10 +236,30 @@ export default async function ProductDetails(props: {
             )}
           </div>
         </div>
-        <SellerOnMap
-          sellerId={product.seller.toString()}
-          clientId={session?.user.id || ""}
-        />
+        <div className="border-2 border-secondary rounded-lg p-2 pt-4">
+          <div className="pb-3">
+            <div className="mb-4">
+              <DisplayUserData
+                userId={product.seller.toString()}
+                showBannerImage
+                showName
+                showShopType
+                showAddress
+                bannerImageStyle="w-20 h-20 rounded-full"
+                nameStyle="font-bold text-xl"
+                addresspeStyle="ml-1 p-1"
+                shoTypeStyle="bg-green-200 px-2 rounded-lg text-green-800"
+              />
+            </div>
+            <Link href={`/seller-shop/${product.seller}`}>
+              <Button variant="third">{t("Product.View Seller")}</Button>
+            </Link>
+          </div>
+          <SellerOnMap
+            sellerId={product.seller.toString()}
+            clientId={session?.user.id || ""}
+          />
+        </div>
       </section>
       <section className="mt-10">
         <h2 className="h2-bold mb-2" id="reviews">

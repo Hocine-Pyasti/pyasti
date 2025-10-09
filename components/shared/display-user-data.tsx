@@ -14,6 +14,10 @@ interface UserData {
   shopAddress?: string;
   shopType?: string;
   role?: string;
+  bannerImageStyle?: string;
+  nameStyle?: string;
+  addresspeStyle?: string;
+  shoTypeStyle?: string;
 }
 
 interface DisplayUserDataProps {
@@ -25,6 +29,10 @@ interface DisplayUserDataProps {
   showAddress?: boolean;
   showShopType?: boolean;
   showRole?: boolean;
+  bannerImageStyle?: string;
+  nameStyle?: string;
+  addresspeStyle?: string;
+  shoTypeStyle?: string;
 }
 
 export default function DisplayUserData({
@@ -36,6 +44,10 @@ export default function DisplayUserData({
   showAddress = false,
   showShopType = false,
   showRole = false,
+  bannerImageStyle,
+  nameStyle,
+  addresspeStyle,
+  shoTypeStyle,
 }: DisplayUserDataProps) {
   const t = useTranslations();
   const [userData, setUserData] = useState<UserData | null>(null);
@@ -83,20 +95,69 @@ export default function DisplayUserData({
   }
   return (
     <div className="box-shadow-md px-2 rounded-md space-y-2 text-sm">
-      {showName && userData.shopName && <p>{userData.shopName}</p>}
-      {showBannerImage && userData.bannerImage && (
-        <Image
-          src={userData.bannerImage}
-          alt={userData.shopName || "Banner Image"}
-          className="w-full h-auto rounded-md"
-        />
+      <div className="flex px-2">
+        {showBannerImage && userData.bannerImage && (
+          <Image
+            src={userData.bannerImage || "/public/avatars/shop4.jpg"}
+            alt={userData.shopName || "Banner Image"}
+            className={`${bannerImageStyle} object-cover object-center`}
+            width={1000}
+            height={1000}
+          />
+        )}
+        <div className="ml-1">
+          {showName && userData.shopName && (
+            <p className={nameStyle}>{userData.shopName}</p>
+          )}
+          {showPhoneNumber && userData.shopPhone && <p>{userData.shopPhone}</p>}
+          {showAddress && userData.shopAddress && (
+            <p className={addresspeStyle}>{userData.shopAddress}</p>
+          )}
+          {showShopType && userData.shopType && (
+            <p className={shoTypeStyle}>
+              {userData.shopType === "Physical Shop"
+                ? t("Auth.Physical Shop.title")
+                : userData.shopType === "Online Shop"
+                  ? t("Auth.Online Shop.title")
+                  : userData.shopType === "Physical and Online Shop"
+                    ? t("Auth.Physical and Online Shop.title")
+                    : userData.shopType === "Repair Workshop with Sales"
+                      ? t("Auth.Repair Workshop with Sales.title")
+                      : userData.shopType === "Specialized Distributor"
+                        ? t("Auth.Specialized Distributor.title")
+                        : userData.shopType === "Automotive Recycler"
+                          ? t("Auth.Automotive Recycler.title")
+                          : userData.shopType === "Custom Manufacturer"
+                            ? t("Auth.Custom Manufacturer.title")
+                            : userData.shopType === "Collection Point"
+                              ? t("Auth.Collection Point.title")
+                              : ""}
+            </p>
+          )}
+        </div>
+      </div>
+
+      {showDescription && userData.shopType && (
+        <p>
+          {userData.shopType === "Physical Shop"
+            ? t("Auth.Physical Shop.description")
+            : userData.shopType === "Online Shop"
+              ? t("Auth.Online Shop.description")
+              : userData.shopType === "Physical and Online Shop"
+                ? t("Auth.Physical and Online Shop.description")
+                : userData.shopType === "Repair Workshop with Sales"
+                  ? t("Auth.Repair Workshop with Sales.description")
+                  : userData.shopType === "Specialized Distributor"
+                    ? t("Auth.Specialized Distributor.description")
+                    : userData.shopType === "Automotive Recycler"
+                      ? t("Auth.Automotive Recycler.description")
+                      : userData.shopType === "Custom Manufacturer"
+                        ? t("Auth.Custom Manufacturer.description")
+                        : userData.shopType === "Collection Point"
+                          ? t("Auth.Collection Point.description")
+                          : t("Auth.Select Type")}
+        </p>
       )}
-      {showPhoneNumber && userData.shopPhone && <p>{userData.shopPhone}</p>}
-      {showDescription && userData.shopDescription && (
-        <p>{userData.shopDescription}</p>
-      )}
-      {showAddress && userData.shopAddress && <p>{userData.shopAddress}</p>}
-      {showShopType && userData.shopType && <p>{userData.shopType}</p>}
 
       {showRole && userData.role && (
         <p className="font-bold text-sm">

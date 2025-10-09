@@ -247,7 +247,8 @@ export const ProfileForm = () => {
           />
         </div>
 
-        {session?.user?.role === "Seller" && (
+        {(session?.user?.role === "Seller" ||
+          session?.user?.role === "Admin") && (
           <>
             <h2 className="text-lg font-bold">{t("All.Business Details")}</h2>
             <div className="grid md:grid-cols-2 gap-5">
