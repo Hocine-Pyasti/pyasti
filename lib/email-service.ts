@@ -195,7 +195,7 @@ export const sendWelcomeEmail = async ({
 
     const result = await sendEmail({
       to: email,
-      subject: "Welcome to PYASTI!",
+      subject: "Bienvenue chez PYASTI!",
       html,
       text,
     });
