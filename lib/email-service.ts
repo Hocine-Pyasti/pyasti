@@ -23,7 +23,7 @@ const createTransporter = () => {
     service: "gmail",
     auth: {
       user: process.env.GMAIL_USER,
-      pass: process.env.GMAIL_APP_PASSWORD, // Use App Password, not regular password
+      pass: process.env.GMAIL_APP_PASSWORD,
     },
   });
 
@@ -130,7 +130,13 @@ export const sendVerificationCodeEmail = async ({
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2 style="color: #333;">Verification Code</h2>
         <p>Votre code de vérification est: <strong style="font-size: 18px; color: #007bff;">${code}</strong></p>
-        <p>If you didn't request this code, please ignore this email.</p>
+        <p>Si vous n'avez pas demandé ce code, veuillez ignorer cet e-mail.</p>
+       <div style="text-align: center; margin: 30px 0;">
+          <a href="${"https://pyasti.com"}"
+             style="background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px;">
+            Aller à PYASTI
+          </a>
+        </div>
       </div>
     `;
 

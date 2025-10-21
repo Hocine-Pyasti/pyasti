@@ -73,7 +73,7 @@ export default function VerifyForm({ userId }: { userId: string }) {
           className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:opacity-50"
           disabled={loading}
         >
-          {loading ? "Verifying..." : "Verify"}
+          {loading ? "Vérification..." : "Vérifier"}
         </button>
       </form>
 
@@ -87,8 +87,8 @@ export default function VerifyForm({ userId }: { userId: string }) {
           {resendLoading
             ? "Sending..."
             : resendCooldown > 0
-              ? `Resend in ${Math.floor(resendCooldown / 60)}:${(resendCooldown % 60).toString().padStart(2, "0")}`
-              : "Resend Code"}
+              ? `Renvoyer dans ${Math.floor(resendCooldown / 60)}:${(resendCooldown % 60).toString().padStart(2, "0")}`
+              : "Renvoyer le code"}
         </button>
       </div>
 
